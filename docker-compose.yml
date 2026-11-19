@@ -1,0 +1,27 @@
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: poorsofascore-db
+    restart: unless-stopped
+    environment:
+      # Administrador do servidor (use só para manutenção, nunca na aplicação)
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD:?defina POSTGRES_ADMIN_PASSWORD no .env}
+      # Usuário e banco da aplicação, criados pelo script em docker/initdb
+      APP_DB_NAME: ${APP_DB_NAME:-poorsofascore}
+      APP_DB_USER: ${APP_DB_USER:-sofascore_app}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?defina APP_DB_PASSWORD no .env}
+    ports:
+      # 127.0.0.1 = o banco só aceita conexões da sua própria máquina
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:
