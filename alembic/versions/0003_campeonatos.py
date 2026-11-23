@@ -4,15 +4,17 @@ Revision ID: 0003
 Revises: 0002
 Create Date: 2026-11-22
 """
-from typing import Sequence, Union
+
+from collections.abc import Sequence
 
 import sqlalchemy as sa
+
 from alembic import op
 
 revision: str = "0003"
-down_revision: Union[str, None] = "0002"
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | None = "0002"
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 FORMATOS = ("PONTOS_CORRIDOS", "MATA_MATA", "GRUPOS_E_MATA_MATA")
 
@@ -23,7 +25,9 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("nome", sa.String(120), nullable=False),
         sa.Column("temporada", sa.Integer(), nullable=False),
-        sa.Column("formato", sa.Enum(*FORMATOS, name="formatocampeonato", native_enum=False, length=30), nullable=False),
+        sa.Column(
+            "formato", sa.Enum(*FORMATOS, name="formatocampeonato", native_enum=False, length=30), nullable=False
+        ),
         sa.Column("data_inicio", sa.Date(), nullable=True),
         sa.Column("data_fim", sa.Date(), nullable=True),
         sa.Column("federacao_id", sa.Integer(), nullable=False),
@@ -51,7 +55,9 @@ def upgrade() -> None:
         sa.Column("equipe_id", sa.Integer(), nullable=False),
         sa.PrimaryKeyConstraint("campeonato_id", "equipe_id", name="pk_campeonato_equipe"),
         sa.ForeignKeyConstraint(
-            ["campeonato_id"], ["campeonato.id"], name="fk_campeonato_equipe_campeonato_id_campeonato",
+            ["campeonato_id"],
+            ["campeonato.id"],
+            name="fk_campeonato_equipe_campeonato_id_campeonato",
             ondelete="CASCADE",
         ),
         sa.ForeignKeyConstraint(

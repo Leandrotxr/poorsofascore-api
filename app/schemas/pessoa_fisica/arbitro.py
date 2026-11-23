@@ -1,14 +1,16 @@
+from typing import Annotated
+
 from pydantic import Field
 
 from app.models import Arbitro, FuncaoArbitro
 from app.schemas.pessoa_fisica.base import PessoaFisicaBase, PessoaFisicaCreate, PessoaFisicaOut, PessoaFisicaUpdate
 from app.schemas.resumos import FederacaoResumo
 
-_IDADE = {"ge": Arbitro.IDADE_MINIMA, "le": Arbitro.IDADE_MAXIMA}
+Idade = Annotated[int, Field(ge=Arbitro.IDADE_MINIMA, le=Arbitro.IDADE_MAXIMA)]
 
 
 class ArbitroBase(PessoaFisicaBase):
-    idade: int = Field(**_IDADE)
+    idade: Idade
     funcao: FuncaoArbitro
 
 
@@ -17,7 +19,7 @@ class ArbitroCreate(ArbitroBase, PessoaFisicaCreate):
 
 
 class ArbitroUpdate(PessoaFisicaUpdate):
-    idade: int | None = Field(default=None, **_IDADE)
+    idade: Idade | None = None
     funcao: FuncaoArbitro | None = None
 
 

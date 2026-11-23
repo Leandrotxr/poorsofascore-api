@@ -3,11 +3,17 @@
 
 # ---------------- Cadastros ----------------
 
+
 def test_cria_federacao_sem_cnpj_e_sigla_maiuscula(client):
     r = client.post(
         "/federacoes",
-        json={"nome": "Fédération Internationale de Football Association", "sigla": "fifa",
-              "abrangencia": "MUNDIAL", "fundacao": 1904, "sede": "Zurique"},
+        json={
+            "nome": "Fédération Internationale de Football Association",
+            "sigla": "fifa",
+            "abrangencia": "MUNDIAL",
+            "fundacao": 1904,
+            "sede": "Zurique",
+        },
     )
     assert r.status_code == 201, r.text
     assert r.json()["sigla"] == "FIFA" and r.json()["cnpj"] is None
@@ -17,8 +23,14 @@ def test_federacao_com_cnpj_valido_e_invalido(nova_federacao, client):
     assert nova_federacao(cnpj="60.674.644/0001-97")["cnpj"] == "60674644000197"
     r = client.post(
         "/federacoes",
-        json={"nome": "Outra", "sigla": "OUT", "abrangencia": "ESTADUAL",
-              "fundacao": 1941, "sede": "SP", "cnpj": "11.111.111/1111-11"},
+        json={
+            "nome": "Outra",
+            "sigla": "OUT",
+            "abrangencia": "ESTADUAL",
+            "fundacao": 1941,
+            "sede": "SP",
+            "cnpj": "11.111.111/1111-11",
+        },
     )
     assert r.status_code == 422
 
@@ -51,13 +63,18 @@ def test_mesmo_cpf_pode_ser_jogador_e_arbitro(novo_jogador, novo_arbitro):
 
 # ---------------- 1:N  Federação -> Equipes ----------------
 
+
 def test_filiar_equipe(client, nova_federacao, nova_equipe):
     cbf, fla = nova_federacao(), nova_equipe()
     r = client.put(f"/federacoes/{cbf['id']}/equipes/{fla['id']}")
 
     assert r.status_code == 200
     assert [e["nome"] for e in r.json()["equipes"]] == ["Flamengo"]
-    assert client.get(f"/equipes/{fla['id']}").json()["federacao"] == {"id": cbf["id"], "nome": cbf["nome"], "sigla": "CBF"}
+    assert client.get(f"/equipes/{fla['id']}").json()["federacao"] == {
+        "id": cbf["id"],
+        "nome": cbf["nome"],
+        "sigla": "CBF",
+    }
 
 
 def test_equipe_nao_pode_estar_em_duas_federacoes(client, nova_federacao, nova_equipe):
@@ -80,6 +97,7 @@ def test_desfiliar_equipe(client, nova_federacao, nova_equipe):
 
 
 # ---------------- 1:N  Federação -> Árbitros ----------------
+
 
 def test_vincular_varios_arbitros(client, nova_federacao, novo_arbitro):
     cbf = nova_federacao()

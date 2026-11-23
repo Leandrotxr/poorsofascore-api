@@ -22,9 +22,7 @@ def obter_detalhe(db: Session, federacao_id: int) -> Federacao:
     stmt = (
         select(Federacao)
         .where(Federacao.id == federacao_id)
-        .options(
-            selectinload(Federacao.equipes), selectinload(Federacao.arbitros), selectinload(Federacao.campeonatos)
-        )
+        .options(selectinload(Federacao.equipes), selectinload(Federacao.arbitros), selectinload(Federacao.campeonatos))
         .execution_options(populate_existing=True)  # sempre relê do banco (dados frescos)
     )
     federacao = db.scalar(stmt)
@@ -65,6 +63,7 @@ def remover(db: Session, federacao_id: int) -> None:
 
 # ---------- Vínculos 1:N  (Federação -> Equipes e Federação -> Árbitros) ----------
 # As duas relações seguem a mesma regra, então usam os mesmos helpers.
+
 
 def _vincular(db: Session, federacao_id: int, membro: Equipe | Arbitro, rotulo: str) -> Federacao:
     federacao = obter_ou_404(db, Federacao, federacao_id, "Federação")

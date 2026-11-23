@@ -13,7 +13,7 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-import app.models  # noqa: F401
+import app.models
 from app.db.base import Base
 from app.db.session import get_db
 from app.main import app
@@ -77,8 +77,13 @@ def novo_jogador(client):
     def _criar(nome="Arrascaeta", posicao="MEIA", idade=31):
         r = client.post(
             "/jogadores",
-            json={"nome": nome, "cpf": CPFS[next(contador)], "idade": idade,
-                  "nacionalidade": "Uruguaio", "posicao": posicao},
+            json={
+                "nome": nome,
+                "cpf": CPFS[next(contador)],
+                "idade": idade,
+                "nacionalidade": "Uruguaio",
+                "posicao": posicao,
+            },
         )
         assert r.status_code == 201, r.text
         return r.json()
@@ -106,8 +111,14 @@ def nova_federacao(client):
     def _criar(nome="Confederação Brasileira de Futebol", sigla="CBF", abrangencia="NACIONAL", **extra):
         r = client.post(
             "/federacoes",
-            json={"nome": nome, "sigla": sigla, "abrangencia": abrangencia,
-                  "fundacao": 1914, "sede": "Rio de Janeiro", **extra},
+            json={
+                "nome": nome,
+                "sigla": sigla,
+                "abrangencia": abrangencia,
+                "fundacao": 1914,
+                "sede": "Rio de Janeiro",
+                **extra,
+            },
         )
         assert r.status_code == 201, r.text
         return r.json()
@@ -122,8 +133,13 @@ def novo_arbitro(client):
     def _criar(nome="Wilton Pereira Sampaio", funcao="CENTRAL", idade=43):
         r = client.post(
             "/arbitros",
-            json={"nome": nome, "cpf": CPFS[next(contador)], "idade": idade,
-                  "nacionalidade": "Brasileiro", "funcao": funcao},
+            json={
+                "nome": nome,
+                "cpf": CPFS[next(contador)],
+                "idade": idade,
+                "nacionalidade": "Brasileiro",
+                "funcao": funcao,
+            },
         )
         assert r.status_code == 201, r.text
         return r.json()

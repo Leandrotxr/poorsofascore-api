@@ -35,6 +35,7 @@ def remover_equipe(equipe_id: int, db: DbSession):
 
 # ---- Elenco (1:N) ----
 
+
 @router.put("/{equipe_id}/jogadores/{jogador_id}", response_model=EquipeDetalhe)
 def contratar_jogador(equipe_id: int, jogador_id: int, db: DbSession):
     return service.contratar_jogador(db, equipe_id, jogador_id)
@@ -46,6 +47,7 @@ def dispensar_jogador(equipe_id: int, jogador_id: int, db: DbSession):
 
 
 # ---- Técnico (1:1) ----
+
 
 @router.put("/{equipe_id}/tecnico/{tecnico_id}", response_model=EquipeDetalhe)
 def definir_tecnico(equipe_id: int, tecnico_id: int, db: DbSession):

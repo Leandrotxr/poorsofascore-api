@@ -84,6 +84,7 @@ def remover(db: Session, campeonato_id: int) -> None:
 
 # ---------- Relação N:N  Campeonato <-> Equipes ----------
 
+
 def inscrever_equipe(db: Session, campeonato_id: int, equipe_id: int) -> Campeonato:
     campeonato = obter(db, campeonato_id)
     equipe = obter_ou_404(db, Equipe, equipe_id, "Equipe")

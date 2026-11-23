@@ -42,6 +42,7 @@ def remover_campeonato(campeonato_id: int, db: DbSession):
 
 # ---- Equipes participantes (N:N) ----
 
+
 @router.put("/{campeonato_id}/equipes/{equipe_id}", response_model=CampeonatoOut)
 def inscrever_equipe(campeonato_id: int, equipe_id: int, db: DbSession):
     return service.inscrever_equipe(db, campeonato_id, equipe_id)

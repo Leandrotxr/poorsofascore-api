@@ -3,6 +3,7 @@
 
 # ---------------- 1:N  Equipe -> Jogadores ----------------
 
+
 def test_contratar_varios_jogadores(client, nova_equipe, novo_jogador):
     equipe = nova_equipe()
     j1 = novo_jogador(nome="Arrascaeta")
@@ -59,6 +60,7 @@ def test_apagar_equipe_libera_jogadores_e_tecnico(client, nova_equipe, novo_joga
 
 
 # ---------------- 1:1  Equipe -> Técnico ----------------
+
 
 def test_definir_tecnico(client, nova_equipe, novo_tecnico):
     equipe, t = nova_equipe(), novo_tecnico()

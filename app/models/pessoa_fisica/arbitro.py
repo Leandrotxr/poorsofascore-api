@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from app.models.pessoa_juridica.federacao import Federacao
 
 
-class FuncaoArbitro(str, enum.Enum):
+class FuncaoArbitro(enum.StrEnum):
     CENTRAL = "CENTRAL"
     ASSISTENTE = "ASSISTENTE"
     VAR = "VAR"
