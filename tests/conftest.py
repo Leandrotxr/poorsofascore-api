@@ -99,3 +99,46 @@ def novo_tecnico(client):
         return r.json()
 
     return _criar
+
+
+@pytest.fixture()
+def nova_federacao(client):
+    def _criar(nome="Confederação Brasileira de Futebol", sigla="CBF", abrangencia="NACIONAL", **extra):
+        r = client.post(
+            "/federacoes",
+            json={"nome": nome, "sigla": sigla, "abrangencia": abrangencia,
+                  "fundacao": 1914, "sede": "Rio de Janeiro", **extra},
+        )
+        assert r.status_code == 201, r.text
+        return r.json()
+
+    return _criar
+
+
+@pytest.fixture()
+def novo_arbitro(client):
+    contador = iter(range(len(CPFS)))  # CPF é único por papel: pode repetir o de um jogador
+
+    def _criar(nome="Wilton Pereira Sampaio", funcao="CENTRAL", idade=43):
+        r = client.post(
+            "/arbitros",
+            json={"nome": nome, "cpf": CPFS[next(contador)], "idade": idade,
+                  "nacionalidade": "Brasileiro", "funcao": funcao},
+        )
+        assert r.status_code == 201, r.text
+        return r.json()
+
+    return _criar
+
+
+@pytest.fixture()
+def novo_campeonato(client):
+    def _criar(federacao_id, nome="Brasileirão Série A", temporada=2026, formato="PONTOS_CORRIDOS", **extra):
+        r = client.post(
+            "/campeonatos",
+            json={"nome": nome, "temporada": temporada, "formato": formato, "federacao_id": federacao_id, **extra},
+        )
+        assert r.status_code == 201, r.text
+        return r.json()
+
+    return _criar

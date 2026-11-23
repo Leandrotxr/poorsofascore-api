@@ -1,13 +1,13 @@
 import enum
 from typing import TYPE_CHECKING
 
-from sqlalchemy import CheckConstraint, Enum, ForeignKey, String
+from sqlalchemy import Enum, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.db.base import Base, TimestampMixin
+from app.models.pessoa_fisica.base import PessoaFisica
 
 if TYPE_CHECKING:
-    from app.models.equipe import Equipe
+    from app.models.pessoa_juridica.equipe import Equipe
 
 
 class Posicao(str, enum.Enum):
@@ -19,15 +19,12 @@ class Posicao(str, enum.Enum):
     ATACANTE = "ATACANTE"
 
 
-class Jogador(TimestampMixin, Base):
+class Jogador(PessoaFisica):
     __tablename__ = "jogador"
-    __table_args__ = (CheckConstraint("idade BETWEEN 14 AND 60", name="idade_valida"),)
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    nome: Mapped[str] = mapped_column(String(120), index=True)
-    cpf: Mapped[str] = mapped_column(String(11), unique=True)
-    idade: Mapped[int]
-    nacionalidade: Mapped[str] = mapped_column(String(60))
+    IDADE_MINIMA = 14
+    IDADE_MAXIMA = 60
+
     posicao: Mapped[Posicao] = mapped_column(Enum(Posicao, native_enum=False, length=20))
 
     # N:1 -> vários jogadores pertencem a uma equipe (ou a nenhuma: agente livre).

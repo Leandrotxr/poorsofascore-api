@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
 from app.api.deps import DbSession
-from app.api.routes import equipes, jogadores, tecnicos
+from app.api.routes import arbitros, campeonatos, equipes, federacoes, jogadores, tecnicos
 from app.core.config import get_settings
 from app.core.exceptions import register_exception_handlers
 
@@ -12,7 +12,7 @@ settings = get_settings()
 app = FastAPI(
     title=settings.app_name,
     version="0.1.0",
-    description="API de gerenciamento de equipes, jogadores e técnicos.",
+    description="API de gerenciamento de federações, campeonatos, equipes, jogadores, técnicos e árbitros.",
 )
 
 app.add_middleware(
@@ -25,9 +25,12 @@ app.add_middleware(
 
 register_exception_handlers(app)
 
+app.include_router(federacoes.router)
+app.include_router(campeonatos.router)
 app.include_router(equipes.router)
 app.include_router(jogadores.router)
 app.include_router(tecnicos.router)
+app.include_router(arbitros.router)
 
 
 @app.get("/health", tags=["Infra"])

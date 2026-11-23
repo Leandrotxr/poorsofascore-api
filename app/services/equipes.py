@@ -1,5 +1,5 @@
 from sqlalchemy import select
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session, joinedload, selectinload
 
 from app.core.exceptions import BusinessRuleError, ConflictError, NotFoundError
 from app.models import Equipe, Jogador, Tecnico
@@ -8,7 +8,7 @@ from app.services.common import aplicar_parcial, commit, obter_ou_404
 
 
 def listar(db: Session, *, nome: str | None = None, skip: int = 0, limit: int = 50) -> list[Equipe]:
-    stmt = select(Equipe).order_by(Equipe.nome).offset(skip).limit(limit)
+    stmt = select(Equipe).options(joinedload(Equipe.federacao)).order_by(Equipe.nome).offset(skip).limit(limit)
     if nome:
         stmt = stmt.where(Equipe.nome.ilike(f"%{nome}%"))  # parâmetro seguro, sem SQL injection
     return list(db.scalars(stmt))
@@ -18,7 +18,7 @@ def obter_detalhe(db: Session, equipe_id: int) -> Equipe:
     stmt = (
         select(Equipe)
         .where(Equipe.id == equipe_id)
-        .options(selectinload(Equipe.jogadores), selectinload(Equipe.tecnico))
+        .options(selectinload(Equipe.jogadores), selectinload(Equipe.tecnico), selectinload(Equipe.campeonatos))
         .execution_options(populate_existing=True)  # sempre relê do banco (dados frescos)
     )
     equipe = db.scalar(stmt)
