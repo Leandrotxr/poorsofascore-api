@@ -7,3 +7,7 @@ __pycache__/
 *.db
 .DS_Store
 .vscode/
+
+# front-end
+node_modules/
+dist/
