@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status
 
-from app.api.deps import DbSession, Limit, Skip
+from app.api.deps import ESCRITA, DbSession, Limit, Skip
 from app.models import FuncaoArbitro
 from app.schemas import ArbitroCreate, ArbitroOut, ArbitroUpdate, Pagina
 from app.services import arbitros as service
@@ -28,16 +28,16 @@ def obter_arbitro(arbitro_id: int, db: DbSession):
     return service.obter(db, arbitro_id)
 
 
-@router.post("", response_model=ArbitroOut, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=ArbitroOut, status_code=status.HTTP_201_CREATED, dependencies=ESCRITA)
 def criar_arbitro(dados: ArbitroCreate, db: DbSession):
     return service.criar(db, dados)
 
 
-@router.patch("/{arbitro_id}", response_model=ArbitroOut)
+@router.patch("/{arbitro_id}", response_model=ArbitroOut, dependencies=ESCRITA)
 def atualizar_arbitro(arbitro_id: int, dados: ArbitroUpdate, db: DbSession):
     return service.atualizar(db, arbitro_id, dados)
 
 
-@router.delete("/{arbitro_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{arbitro_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=ESCRITA)
 def remover_arbitro(arbitro_id: int, db: DbSession):
     service.remover(db, arbitro_id)

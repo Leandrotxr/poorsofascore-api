@@ -14,6 +14,7 @@ import { JogadoresLista } from './views/Jogadores'
 import { ArbitroPainel, JogadorPainel, TecnicoPainel } from './views/PainelPessoa'
 import { PartidaPainel, PartidasLista } from './views/Partidas'
 import { TecnicosLista } from './views/Tecnicos'
+import { FormUsuario, UsuariosPagina } from './views/Usuarios'
 
 /**
  * Cada aba tem as mesmas 4 rotas. A lista fica sempre por baixo e as filhas abrem uma gaveta por cima:
@@ -46,6 +47,14 @@ export const router = createBrowserRouter([
       aba('jogadores', JogadoresLista, JogadorPainel, FormJogador),
       aba('tecnicos', TecnicosLista, TecnicoPainel, FormTecnico),
       aba('arbitros', ArbitrosLista, ArbitroPainel, FormArbitro),
+      {
+        path: 'usuarios',
+        element: <UsuariosPagina />,
+        children: [
+          { path: 'novo', element: <FormUsuario /> },
+          { path: ':id', element: <FormUsuario /> },
+        ],
+      },
       { path: '*', element: <NaoEncontrado /> },
     ],
   },

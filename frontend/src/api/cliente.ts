@@ -1,4 +1,5 @@
 // Cliente HTTP: faz a requisição, traduz os erros da API e expõe ApiError com os erros por campo.
+import { sessao } from './sessao'
 
 export const API_URL = (import.meta.env.VITE_API_URL ?? 'http://localhost:8000').replace(/\/$/, '')
 
@@ -86,15 +87,22 @@ type Metodo = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'
 export async function requisitar<T>(metodo: Metodo, caminho: string, corpo?: unknown): Promise<T> {
   let resposta: Response
   try {
+    const headers: Record<string, string> = {}
+    if (corpo !== undefined) headers['Content-Type'] = 'application/json'
+    const token = sessao.token()
+    if (token) headers.Authorization = `Bearer ${token}`
     resposta = await fetch(`${API_URL}${caminho}`, {
       method: metodo,
-      headers: corpo === undefined ? undefined : { 'Content-Type': 'application/json' },
+      headers,
       body: corpo === undefined ? undefined : JSON.stringify(corpo),
     })
   } catch {
     // fetch só lança quando não há resposta: API desligada ou bloqueio de CORS.
     throw new ApiError(0, `Não foi possível conectar à API em ${API_URL}`)
   }
+
+  // Token vencido ou usuário desativado: encerra a sessão local (a tela volta ao modo leitura).
+  if (resposta.status === 401 && sessao.token()) sessao.definir(null)
 
   if (!resposta.ok) {
     let corpoErro: unknown = null
@@ -110,3 +118,20 @@ export async function requisitar<T>(metodo: Metodo, caminho: string, corpo?: unk
 }
 
 export const mensagemDe = (e: unknown) => (e instanceof Error ? e.message : String(e))
+
+/** Login: o endpoint segue o padrão OAuth2 e recebe um formulário (username = e-mail). */
+export async function entrar(email: string, senha: string): Promise<{ access_token: string }> {
+  let resposta: Response
+  try {
+    resposta = await fetch(`${API_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ username: email, password: senha }),
+    })
+  } catch {
+    throw new ApiError(0, `Não foi possível conectar à API em ${API_URL}`)
+  }
+  const corpo: unknown = await resposta.json().catch(() => null)
+  if (!resposta.ok) throw erroDaResposta(resposta.status, corpo)
+  return corpo as { access_token: string }
+}

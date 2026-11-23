@@ -3,6 +3,7 @@ import { Icone } from '../components/Icone'
 import { GavetaEstado, Gaveta, IconeGaveta } from '../components/Gaveta'
 import { mensagemDe, type NomeRecurso } from '../api'
 import { VISUAL } from '../estilo'
+import { useSessao } from '../hooks'
 
 /** Título das gavetas de formulário. */
 const TITULOS: Record<NomeRecurso, { novo: string; editar: string }> = {
@@ -35,6 +36,30 @@ export function GavetaFormulario({
   children: ReactNode
 }) {
   const v = VISUAL[entidade]
+  const { podeEditar, abrirLogin } = useSessao()
+  if (!podeEditar) {
+    return (
+      <Gaveta
+        tom={v.tom}
+        icone={
+          <IconeGaveta>
+            <Icone nome="cadeado" className="size-7" />
+          </IconeGaveta>
+        }
+        titulo={TITULOS[entidade][editando ? 'editar' : 'novo']}
+        onFechar={onFechar}
+      >
+        <p className="text-sm text-slate-600">Para cadastrar ou editar, entre com sua conta.</p>
+        <button
+          type="button"
+          onClick={abrirLogin}
+          className="inline-flex items-center gap-2 rounded-full bg-tinta px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-tinta/85"
+        >
+          <Icone nome="cadeado" /> Entrar
+        </button>
+      </Gaveta>
+    )
+  }
   if (editando && !carregado) {
     return <GavetaEstado tom={v.tom} erro={erro ? mensagemDe(erro) : undefined} onFechar={onFechar} />
   }

@@ -123,3 +123,46 @@ jobs:
 
       - name: TypeScript + build
         run: npm run build
+
+  docker:
+    name: Docker (imagens e compose)
+    runs-on: ubuntu-latest
+    needs: [api, frontend]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Criar .env de teste
+        run: |
+          cat > .env <<'ENV'
+          POSTGRES_ADMIN_PASSWORD=admin_ci
+          APP_DB_PASSWORD=app_ci
+          SECRET_KEY=chave-do-ci-com-mais-de-32-caracteres-xyz
+          ADMIN_EMAIL=admin@ci.com
+          ADMIN_SENHA=senha-do-ci
+          ENV
+
+      - name: Construir e subir (db + api + web)
+        run: docker compose up -d --build --wait --wait-timeout 180
+
+      - name: Testar API e front no ar
+        run: |
+          curl -fsS http://localhost:8000/health
+          curl -fsS http://localhost:8000/resumo
+          # o 1º admin foi criado pelo container e consegue logar
+          TOKEN=$(curl -fsS -X POST http://localhost:8000/auth/login \
+            -d "username=admin@ci.com&password=senha-do-ci" | python3 -c "import sys, json; print(json.load(sys.stdin)['access_token'])")
+          curl -fsS http://localhost:8000/auth/eu -H "Authorization: Bearer $TOKEN"
+          # escrita sem login é recusada
+          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:8000/equipes -H 'Content-Type: application/json' -d '{}')" = 401
+          # o front responde, inclusive numa rota do React Router (fallback para o index.html)
+          curl -fsS http://localhost:8080/ | grep -q '<div id="root">'
+          curl -fsS http://localhost:8080/equipes/1 | grep -q '<div id="root">'
+
+      - name: Logs (se falhar)
+        if: failure()
+        run: docker compose logs
+
+      - name: Derrubar
+        if: always()
+        run: docker compose down -v

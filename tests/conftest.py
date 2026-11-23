@@ -14,9 +14,11 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 import app.models
+from app.core.seguranca import criar_token, gerar_hash
 from app.db.base import Base
 from app.db.session import get_db
 from app.main import app
+from app.models import PapelUsuario, Usuario
 from tests.auxiliares import nascido_ha
 
 TEST_URL = os.getenv("TEST_DATABASE_URL", "sqlite://")
@@ -33,8 +35,34 @@ else:
 TestingSession = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
 
 
+SENHA = "senha-de-teste"
+_HASH = gerar_hash(SENHA)  # calculado uma vez só (Argon2 é lento de propósito)
+
+
+def _criar_usuarios() -> dict[str, int]:
+    with TestingSession() as db:
+        usuarios = {
+            "editor": Usuario(email="editor@teste.com", nome="Editor", senha_hash=_HASH, papel=PapelUsuario.EDITOR),
+            "admin": Usuario(email="admin@teste.com", nome="Admin", senha_hash=_HASH, papel=PapelUsuario.ADMIN),
+        }
+        db.add_all(usuarios.values())
+        db.commit()
+        return {k: u.id for k, u in usuarios.items()}
+
+
+def autorizacao(usuario_id: int) -> dict[str, str]:
+    return {"Authorization": f"Bearer {criar_token(usuario_id)[0]}"}
+
+
 @pytest.fixture()
-def client():
+def ids_usuarios():
+    """Ids dos usuários de teste: {'editor': ..., 'admin': ...} (senha: SENHA)."""
+    return {}
+
+
+@pytest.fixture()
+def client(ids_usuarios):
+    """Cliente já logado como EDITOR (pode alterar dados). Para testar sem login, use `anonimo`."""
     Base.metadata.create_all(engine)
 
     def _get_db():
@@ -45,10 +73,25 @@ def client():
             db.close()
 
     app.dependency_overrides[get_db] = _get_db
+    ids_usuarios.update(_criar_usuarios())
     with TestClient(app) as c:
+        c.headers.update(autorizacao(ids_usuarios["editor"]))
         yield c
     app.dependency_overrides.clear()
     Base.metadata.drop_all(engine)
+
+
+@pytest.fixture()
+def anonimo(client):
+    """Cliente sem login (mesmo banco do `client`)."""
+    with TestClient(app) as c:
+        yield c
+
+
+@pytest.fixture()
+def como_admin(client, ids_usuarios):
+    """Cabeçalho de autorização de um ADMIN: client.get(..., headers=como_admin)."""
+    return autorizacao(ids_usuarios["admin"])
 
 
 # ---------- dados de exemplo (CPFs/CNPJs válidos) ----------

@@ -1,3 +1,4 @@
+from app.schemas.acesso import Token, TrocaDeSenha, UsuarioCreate, UsuarioOut, UsuarioUpdate
 from app.schemas.competicao import (
     Artilheiro,
     CampeonatoCreate,
@@ -74,4 +75,9 @@ __all__ = [
     "TecnicoCreate",
     "TecnicoOut",
     "TecnicoUpdate",
+    "Token",
+    "TrocaDeSenha",
+    "UsuarioCreate",
+    "UsuarioOut",
+    "UsuarioUpdate",
 ]

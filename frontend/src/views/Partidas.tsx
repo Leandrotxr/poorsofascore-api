@@ -7,7 +7,7 @@ import { ListaPaginada } from '../components/Lista'
 import { LinhaPartida, Placar } from '../components/Partida'
 import { Avatar, Chip, Etiqueta, LinhaChips, Rotulo } from '../components/ui'
 import { EVENTO, formatarDataHora, STATUS } from '../estilo'
-import { useAcao, useFiltrosUrl, useIdRota, useNavegarNaAba, type Executar } from '../hooks'
+import { useAcao, useFiltrosUrl, useIdRota, useNavegarNaAba, useSessao, type Executar } from '../hooks'
 import { STATUS_PARTIDA, TIPOS_EVENTO, type PartidaDetalhe, type StatusPartida, type TipoEvento } from '../types'
 
 export function PartidasLista() {
@@ -83,6 +83,7 @@ export function PartidaPainel() {
   const fechar = () => navegar()
   const { data: partida, error } = useQuery(consultas.partida(id))
   const { executar, ocupado } = useAcao()
+  const { podeEditar } = useSessao()
 
   if (!partida) return <GavetaEstado tom="rosa" erro={error ? mensagemDe(error) : undefined} onFechar={fechar} />
 
@@ -119,7 +120,7 @@ export function PartidaPainel() {
         </div>
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
           <Etiqueta tom={st.tom}>{st.rotulo}</Etiqueta>
-          {proximo && (
+          {proximo && podeEditar && (
             <button
               type="button"
               disabled={ocupado}
@@ -191,7 +192,7 @@ export function PartidaPainel() {
             ))}
           </ul>
         )}
-        {partida.status !== 'AGENDADA' && <NovoLance partida={partida} executar={executar} ocupado={ocupado} />}
+        {partida.status !== 'AGENDADA' && podeEditar && <NovoLance partida={partida} executar={executar} ocupado={ocupado} />}
       </SecaoGaveta>
     </Gaveta>
   )

@@ -1,3 +1,7 @@
+# Tudo junto:        docker compose up -d --build   → front em http://localhost:8080, API em http://localhost:8000
+# Só o banco (dev):  docker compose up -d db        → e rode a API/front na sua máquina, como antes
+# Portas ocupadas (ex.: Postgres do Homebrew na 5432)? Mude no .env: DB_PORTA, API_PORTA, WEB_PORTA.
+# Guia completo (instalação do Docker e problemas comuns): docs/DOCKER.md
 services:
   db:
     image: postgres:17-alpine
@@ -13,7 +17,7 @@ services:
       APP_DB_PASSWORD: ${APP_DB_PASSWORD:?defina APP_DB_PASSWORD no .env}
     ports:
       # 127.0.0.1 = o banco só aceita conexões da sua própria máquina
-      - "127.0.0.1:5432:5432"
+      - "127.0.0.1:${DB_PORTA:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./docker/initdb:/docker-entrypoint-initdb.d:ro
@@ -22,6 +26,38 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+
+  api:
+    build: .
+    container_name: poorsofascore-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Dentro da rede do compose o banco se chama "db" (não localhost).
+      # Use uma senha só com letras, números, - e _ (outros caracteres precisariam de escape na URL).
+      DATABASE_URL: postgresql+psycopg://${APP_DB_USER:-sofascore_app}:${APP_DB_PASSWORD}@db:5432/${APP_DB_NAME:-poorsofascore}
+      SECRET_KEY: ${SECRET_KEY:?defina SECRET_KEY no .env (veja .env.example)}
+      CORS_ORIGINS: http://localhost:${WEB_PORTA:-8080}
+      # Primeiro admin, criado só se o banco ainda não tiver usuários (pode deixar vazio)
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_SENHA: ${ADMIN_SENHA:-}
+      ADMIN_NOME: ${ADMIN_NOME:-Administrador}
+    ports:
+      - "127.0.0.1:${API_PORTA:-8000}:8000"
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: http://localhost:${API_PORTA:-8000}
+    container_name: poorsofascore-web
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "127.0.0.1:${WEB_PORTA:-8080}:80"
 
 volumes:
   pgdata:

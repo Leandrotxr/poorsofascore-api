@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status
 
-from app.api.deps import DbSession, Limit, Skip
+from app.api.deps import ESCRITA, DbSession, Limit, Skip
 from app.schemas import Artilheiro, CampeonatoCreate, CampeonatoOut, CampeonatoUpdate, LinhaClassificacao, Pagina
 from app.services import campeonatos as service
 from app.services import estatisticas
@@ -39,17 +39,17 @@ def artilheiros(campeonato_id: int, db: DbSession):
     return estatisticas.artilheiros(db, campeonato_id)
 
 
-@router.post("", response_model=CampeonatoOut, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=CampeonatoOut, status_code=status.HTTP_201_CREATED, dependencies=ESCRITA)
 def criar_campeonato(dados: CampeonatoCreate, db: DbSession):
     return service.criar(db, dados)
 
 
-@router.patch("/{campeonato_id}", response_model=CampeonatoOut)
+@router.patch("/{campeonato_id}", response_model=CampeonatoOut, dependencies=ESCRITA)
 def atualizar_campeonato(campeonato_id: int, dados: CampeonatoUpdate, db: DbSession):
     return service.atualizar(db, campeonato_id, dados)
 
 
-@router.delete("/{campeonato_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{campeonato_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=ESCRITA)
 def remover_campeonato(campeonato_id: int, db: DbSession):
     service.remover(db, campeonato_id)
 
@@ -57,11 +57,11 @@ def remover_campeonato(campeonato_id: int, db: DbSession):
 # ---- Equipes participantes (N:N) ----
 
 
-@router.put("/{campeonato_id}/equipes/{equipe_id}", response_model=CampeonatoOut)
+@router.put("/{campeonato_id}/equipes/{equipe_id}", response_model=CampeonatoOut, dependencies=ESCRITA)
 def inscrever_equipe(campeonato_id: int, equipe_id: int, db: DbSession):
     return service.inscrever_equipe(db, campeonato_id, equipe_id)
 
 
-@router.delete("/{campeonato_id}/equipes/{equipe_id}", response_model=CampeonatoOut)
+@router.delete("/{campeonato_id}/equipes/{equipe_id}", response_model=CampeonatoOut, dependencies=ESCRITA)
 def remover_equipe(campeonato_id: int, equipe_id: int, db: DbSession):
     return service.remover_equipe(db, campeonato_id, equipe_id)

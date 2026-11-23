@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status
 
-from app.api.deps import DbSession, Limit, Skip
+from app.api.deps import ESCRITA, DbSession, Limit, Skip
 from app.models import Posicao
 from app.schemas import ContratoJogadorOut, JogadorCreate, JogadorOut, JogadorUpdate, Pagina
 from app.services import contratos
@@ -35,16 +35,16 @@ def contratos_do_jogador(jogador_id: int, db: DbSession):
     return contratos.contratos_do_jogador(db, jogador_id)
 
 
-@router.post("", response_model=JogadorOut, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=JogadorOut, status_code=status.HTTP_201_CREATED, dependencies=ESCRITA)
 def criar_jogador(dados: JogadorCreate, db: DbSession):
     return service.criar(db, dados)
 
 
-@router.patch("/{jogador_id}", response_model=JogadorOut)
+@router.patch("/{jogador_id}", response_model=JogadorOut, dependencies=ESCRITA)
 def atualizar_jogador(jogador_id: int, dados: JogadorUpdate, db: DbSession):
     return service.atualizar(db, jogador_id, dados)
 
 
-@router.delete("/{jogador_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{jogador_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=ESCRITA)
 def remover_jogador(jogador_id: int, db: DbSession):
     service.remover(db, jogador_id)

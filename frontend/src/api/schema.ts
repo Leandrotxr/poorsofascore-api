@@ -4,6 +4,110 @@
  */
 
 export interface paths {
+    "/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Login
+         * @description Troca e-mail e senha por um token. Envie como formulário (`username` = e-mail, `password`).
+         *     Depois mande o token no cabeçalho `Authorization: Bearer <token>` nas rotas que alteram dados.
+         */
+        post: operations["login_auth_login_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/eu": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Quem Sou Eu
+         * @description Usuário dono do token (o front usa para saber se a sessão ainda vale).
+         */
+        get: operations["quem_sou_eu_auth_eu_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/eu/senha": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Trocar Minha Senha
+         * @description Troca a própria senha. O token atual continua valendo até vencer.
+         */
+        put: operations["trocar_minha_senha_auth_eu_senha_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/usuarios": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listar Usuarios */
+        get: operations["listar_usuarios_usuarios_get"];
+        put?: never;
+        /** Criar Usuario */
+        post: operations["criar_usuario_usuarios_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/usuarios/{usuario_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remover Usuario
+         * @description Não permite excluir a própria conta nem o último ADMIN ativo.
+         */
+        delete: operations["remover_usuario_usuarios__usuario_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Atualizar Usuario
+         * @description Muda nome, senha, papel ou desativa. Não deixa o sistema sem nenhum ADMIN ativo
+         *     e não deixa o admin desativar a própria conta.
+         */
+        patch: operations["atualizar_usuario_usuarios__usuario_id__patch"];
+        trace?: never;
+    };
     "/federacoes": {
         parameters: {
             query?: never;
@@ -639,6 +743,30 @@ export interface components {
             /** Gols */
             gols: number;
         };
+        /** Body_login_auth_login_post */
+        Body_login_auth_login_post: {
+            /** Grant Type */
+            grant_type?: string | null;
+            /** Username */
+            username: string;
+            /**
+             * Password
+             * Format: password
+             */
+            password: string;
+            /**
+             * Scope
+             * @default
+             */
+            scope: string;
+            /** Client Id */
+            client_id?: string | null;
+            /**
+             * Client Secret
+             * Format: password
+             */
+            client_secret?: string | null;
+        };
         /** CampeonatoCreate */
         CampeonatoCreate: {
             /** Nome */
@@ -1163,6 +1291,11 @@ export interface components {
             /** Limit */
             limit: number;
         };
+        /**
+         * PapelUsuario
+         * @enum {string}
+         */
+        PapelUsuario: "EDITOR" | "ADMIN";
         /** PartidaCreate */
         PartidaCreate: {
             /** Campeonato Id */
@@ -1358,6 +1491,74 @@ export interface components {
          * @enum {string}
          */
         TipoEvento: "GOL" | "GOL_CONTRA" | "CARTAO_AMARELO" | "CARTAO_VERMELHO";
+        /**
+         * Token
+         * @description Resposta do login, no formato do OAuth2 (o /docs usa para o botão Authorize).
+         */
+        Token: {
+            /** Access Token */
+            access_token: string;
+            /**
+             * Token Type
+             * @default bearer
+             */
+            token_type: string;
+            /**
+             * Expires In
+             * @description Segundos até o token vencer
+             */
+            expires_in: number;
+            usuario: components["schemas"]["UsuarioOut"];
+        };
+        /**
+         * TrocaDeSenha
+         * @description Qualquer usuário logado troca a própria senha (precisa confirmar a atual).
+         */
+        TrocaDeSenha: {
+            /** Senha Atual */
+            senha_atual: string;
+            /** Nova Senha */
+            nova_senha: string;
+        };
+        /** UsuarioCreate */
+        UsuarioCreate: {
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+            /** Nome */
+            nome: string;
+            /** Senha */
+            senha: string;
+            /** @default EDITOR */
+            papel: components["schemas"]["PapelUsuario"];
+        };
+        /** UsuarioOut */
+        UsuarioOut: {
+            /** Id */
+            id: number;
+            /** Email */
+            email: string;
+            /** Nome */
+            nome: string;
+            papel: components["schemas"]["PapelUsuario"];
+            /** Ativo */
+            ativo: boolean;
+        };
+        /**
+         * UsuarioUpdate
+         * @description PATCH (só ADMIN). O e-mail não muda; para trocar, crie outro usuário.
+         */
+        UsuarioUpdate: {
+            /** Nome */
+            nome?: string | null;
+            /** Senha */
+            senha?: string | null;
+            papel?: components["schemas"]["PapelUsuario"] | null;
+            /** Ativo */
+            ativo?: boolean | null;
+        };
         /** ValidationError */
         ValidationError: {
             /** Location */
@@ -1380,6 +1581,207 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    login_auth_login_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/x-www-form-urlencoded": components["schemas"]["Body_login_auth_login_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Token"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    quem_sou_eu_auth_eu_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UsuarioOut"];
+                };
+            };
+        };
+    };
+    trocar_minha_senha_auth_eu_senha_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TrocaDeSenha"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listar_usuarios_usuarios_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UsuarioOut"][];
+                };
+            };
+        };
+    };
+    criar_usuario_usuarios_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UsuarioCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UsuarioOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remover_usuario_usuarios__usuario_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                usuario_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    atualizar_usuario_usuarios__usuario_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                usuario_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UsuarioUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UsuarioOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     listar_federacoes_federacoes_get: {
         parameters: {
             query?: {

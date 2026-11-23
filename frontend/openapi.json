@@ -6,6 +6,286 @@
     "version": "0.1.0"
   },
   "paths": {
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Acesso"
+        ],
+        "summary": "Login",
+        "description": "Troca e-mail e senha por um token. Envie como formulário (`username` = e-mail, `password`).\nDepois mande o token no cabeçalho `Authorization: Bearer <token>` nas rotas que alteram dados.",
+        "operationId": "login_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_login_auth_login_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Token"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/eu": {
+      "get": {
+        "tags": [
+          "Acesso"
+        ],
+        "summary": "Quem Sou Eu",
+        "description": "Usuário dono do token (o front usa para saber se a sessão ainda vale).",
+        "operationId": "quem_sou_eu_auth_eu_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsuarioOut"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/auth/eu/senha": {
+      "put": {
+        "tags": [
+          "Acesso"
+        ],
+        "summary": "Trocar Minha Senha",
+        "description": "Troca a própria senha. O token atual continua valendo até vencer.",
+        "operationId": "trocar_minha_senha_auth_eu_senha_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrocaDeSenha"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/usuarios": {
+      "get": {
+        "tags": [
+          "Acesso"
+        ],
+        "summary": "Listar Usuarios",
+        "operationId": "listar_usuarios_usuarios_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/UsuarioOut"
+                  },
+                  "type": "array",
+                  "title": "Response Listar Usuarios Usuarios Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Acesso"
+        ],
+        "summary": "Criar Usuario",
+        "operationId": "criar_usuario_usuarios_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UsuarioCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsuarioOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/usuarios/{usuario_id}": {
+      "patch": {
+        "tags": [
+          "Acesso"
+        ],
+        "summary": "Atualizar Usuario",
+        "description": "Muda nome, senha, papel ou desativa. Não deixa o sistema sem nenhum ADMIN ativo\ne não deixa o admin desativar a própria conta.",
+        "operationId": "atualizar_usuario_usuarios__usuario_id__patch",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "usuario_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Usuario Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UsuarioUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsuarioOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Acesso"
+        ],
+        "summary": "Remover Usuario",
+        "description": "Não permite excluir a própria conta nem o último ADMIN ativo.",
+        "operationId": "remover_usuario_usuarios__usuario_id__delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "usuario_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Usuario Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/federacoes": {
       "get": {
         "tags": [
@@ -104,6 +384,11 @@
         ],
         "summary": "Criar Federacao",
         "operationId": "criar_federacao_federacoes_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -186,6 +471,11 @@
         ],
         "summary": "Atualizar Federacao",
         "operationId": "atualizar_federacao_federacoes__federacao_id__patch",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "federacao_id",
@@ -236,6 +526,11 @@
         ],
         "summary": "Remover Federacao",
         "operationId": "remover_federacao_federacoes__federacao_id__delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "federacao_id",
@@ -271,6 +566,11 @@
         ],
         "summary": "Filiar Equipe",
         "operationId": "filiar_equipe_federacoes__federacao_id__equipes__equipe_id__put",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "federacao_id",
@@ -320,6 +620,11 @@
         ],
         "summary": "Desfiliar Equipe",
         "operationId": "desfiliar_equipe_federacoes__federacao_id__equipes__equipe_id__delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "federacao_id",
@@ -371,6 +676,11 @@
         ],
         "summary": "Vincular Arbitro",
         "operationId": "vincular_arbitro_federacoes__federacao_id__arbitros__arbitro_id__put",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "federacao_id",
@@ -420,6 +730,11 @@
         ],
         "summary": "Desvincular Arbitro",
         "operationId": "desvincular_arbitro_federacoes__federacao_id__arbitros__arbitro_id__delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "federacao_id",
@@ -577,6 +892,11 @@
         ],
         "summary": "Criar Campeonato",
         "operationId": "criar_campeonato_campeonatos_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -659,6 +979,11 @@
         ],
         "summary": "Atualizar Campeonato",
         "operationId": "atualizar_campeonato_campeonatos__campeonato_id__patch",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "campeonato_id",
@@ -709,6 +1034,11 @@
         ],
         "summary": "Remover Campeonato",
         "operationId": "remover_campeonato_campeonatos__campeonato_id__delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "campeonato_id",
@@ -838,6 +1168,11 @@
         ],
         "summary": "Inscrever Equipe",
         "operationId": "inscrever_equipe_campeonatos__campeonato_id__equipes__equipe_id__put",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "campeonato_id",
@@ -887,6 +1222,11 @@
         ],
         "summary": "Remover Equipe",
         "operationId": "remover_equipe_campeonatos__campeonato_id__equipes__equipe_id__delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "campeonato_id",
@@ -1062,6 +1402,11 @@
         "summary": "Criar Partida",
         "description": "As duas equipes precisam estar inscritas no campeonato. A partida nasce AGENDADA.",
         "operationId": "criar_partida_partidas_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1145,6 +1490,11 @@
         "summary": "Atualizar Partida",
         "description": "Também muda o status: AGENDADA → EM_ANDAMENTO → ENCERRADA.",
         "operationId": "atualizar_partida_partidas__partida_id__patch",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "partida_id",
@@ -1195,6 +1545,11 @@
         ],
         "summary": "Remover Partida",
         "operationId": "remover_partida_partidas__partida_id__delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "partida_id",
@@ -1231,6 +1586,11 @@
         "summary": "Adicionar Evento",
         "description": "A partida precisa ter começado. A equipe do evento é a equipe atual do jogador.",
         "operationId": "adicionar_evento_partidas__partida_id__eventos_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "partida_id",
@@ -1283,6 +1643,11 @@
         ],
         "summary": "Remover Evento",
         "operationId": "remover_evento_partidas__partida_id__eventos__evento_id__delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "partida_id",
@@ -1445,6 +1810,11 @@
         ],
         "summary": "Criar Equipe",
         "operationId": "criar_equipe_equipes_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1527,6 +1897,11 @@
         ],
         "summary": "Atualizar Equipe",
         "operationId": "atualizar_equipe_equipes__equipe_id__patch",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "equipe_id",
@@ -1577,6 +1952,11 @@
         ],
         "summary": "Remover Equipe",
         "operationId": "remover_equipe_equipes__equipe_id__delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "equipe_id",
@@ -1613,6 +1993,11 @@
         "summary": "Contratar Jogador",
         "description": "Abre um contrato (corpo opcional: `inicio` e `numero_camisa`). O jogador precisa estar livre.",
         "operationId": "contratar_jogador_equipes__equipe_id__jogadores__jogador_id__put",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "equipe_id",
@@ -1680,6 +2065,11 @@
         "summary": "Dispensar Jogador",
         "description": "Encerra o contrato atual (fica no histórico do jogador).",
         "operationId": "dispensar_jogador_equipes__equipe_id__jogadores__jogador_id__delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "equipe_id",
@@ -1732,6 +2122,11 @@
         "summary": "Definir Tecnico",
         "description": "Define o técnico (corpo opcional: `inicio`). Se a equipe já tiver um, o contrato dele é encerrado.",
         "operationId": "definir_tecnico_equipes__equipe_id__tecnico__tecnico_id__put",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "equipe_id",
@@ -1800,6 +2195,11 @@
         ],
         "summary": "Remover Tecnico",
         "operationId": "remover_tecnico_equipes__equipe_id__tecnico_delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "equipe_id",
@@ -1958,6 +2358,11 @@
         ],
         "summary": "Criar Jogador",
         "operationId": "criar_jogador_jogadores_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -2039,6 +2444,11 @@
         ],
         "summary": "Atualizar Jogador",
         "operationId": "atualizar_jogador_jogadores__jogador_id__patch",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "jogador_id",
@@ -2089,6 +2499,11 @@
         ],
         "summary": "Remover Jogador",
         "operationId": "remover_jogador_jogadores__jogador_id__delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "jogador_id",
@@ -2255,6 +2670,11 @@
         ],
         "summary": "Criar Tecnico",
         "operationId": "criar_tecnico_tecnicos_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -2336,6 +2756,11 @@
         ],
         "summary": "Atualizar Tecnico",
         "operationId": "atualizar_tecnico_tecnicos__tecnico_id__patch",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "tecnico_id",
@@ -2386,6 +2811,11 @@
         ],
         "summary": "Remover Tecnico",
         "operationId": "remover_tecnico_tecnicos__tecnico_id__delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "tecnico_id",
@@ -2584,6 +3014,11 @@
         ],
         "summary": "Criar Arbitro",
         "operationId": "criar_arbitro_arbitros_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -2665,6 +3100,11 @@
         ],
         "summary": "Atualizar Arbitro",
         "operationId": "atualizar_arbitro_arbitros__arbitro_id__patch",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "arbitro_id",
@@ -2715,6 +3155,11 @@
         ],
         "summary": "Remover Arbitro",
         "operationId": "remover_arbitro_arbitros__arbitro_id__delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "arbitro_id",
@@ -2993,6 +3438,65 @@
           "gols"
         ],
         "title": "Artilheiro"
+      },
+      "Body_login_auth_login_post": {
+        "properties": {
+          "grant_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^password$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grant Type"
+          },
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "title": "Password"
+          },
+          "scope": {
+            "type": "string",
+            "title": "Scope",
+            "default": ""
+          },
+          "client_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Id"
+          },
+          "client_secret": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "format": "password",
+            "title": "Client Secret"
+          }
+        },
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "title": "Body_login_auth_login_post"
       },
       "CampeonatoCreate": {
         "properties": {
@@ -4467,6 +4971,14 @@
         ],
         "title": "Pagina[TecnicoOut]"
       },
+      "PapelUsuario": {
+        "type": "string",
+        "enum": [
+          "EDITOR",
+          "ADMIN"
+        ],
+        "title": "PapelUsuario"
+      },
       "PartidaCreate": {
         "properties": {
           "campeonato_id": {
@@ -5046,6 +5558,174 @@
         ],
         "title": "TipoEvento"
       },
+      "Token": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token"
+          },
+          "token_type": {
+            "type": "string",
+            "title": "Token Type",
+            "default": "bearer"
+          },
+          "expires_in": {
+            "type": "integer",
+            "title": "Expires In",
+            "description": "Segundos até o token vencer"
+          },
+          "usuario": {
+            "$ref": "#/components/schemas/UsuarioOut"
+          }
+        },
+        "type": "object",
+        "required": [
+          "access_token",
+          "expires_in",
+          "usuario"
+        ],
+        "title": "Token",
+        "description": "Resposta do login, no formato do OAuth2 (o /docs usa para o botão Authorize)."
+      },
+      "TrocaDeSenha": {
+        "properties": {
+          "senha_atual": {
+            "type": "string",
+            "title": "Senha Atual"
+          },
+          "nova_senha": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 8,
+            "title": "Nova Senha"
+          }
+        },
+        "type": "object",
+        "required": [
+          "senha_atual",
+          "nova_senha"
+        ],
+        "title": "TrocaDeSenha",
+        "description": "Qualquer usuário logado troca a própria senha (precisa confirmar a atual)."
+      },
+      "UsuarioCreate": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "nome": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Nome"
+          },
+          "senha": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 8,
+            "title": "Senha"
+          },
+          "papel": {
+            "$ref": "#/components/schemas/PapelUsuario",
+            "default": "EDITOR"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "nome",
+          "senha"
+        ],
+        "title": "UsuarioCreate"
+      },
+      "UsuarioOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "nome": {
+            "type": "string",
+            "title": "Nome"
+          },
+          "papel": {
+            "$ref": "#/components/schemas/PapelUsuario"
+          },
+          "ativo": {
+            "type": "boolean",
+            "title": "Ativo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "email",
+          "nome",
+          "papel",
+          "ativo"
+        ],
+        "title": "UsuarioOut"
+      },
+      "UsuarioUpdate": {
+        "properties": {
+          "nome": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120,
+                "minLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nome"
+          },
+          "senha": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128,
+                "minLength": 8
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Senha"
+          },
+          "papel": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PapelUsuario"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ativo": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ativo"
+          }
+        },
+        "type": "object",
+        "title": "UsuarioUpdate",
+        "description": "PATCH (só ADMIN). O e-mail não muda; para trocar, crie outro usuário."
+      },
       "ValidationError": {
         "properties": {
           "loc": {
@@ -5085,6 +5765,17 @@
           "type"
         ],
         "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "OAuth2PasswordBearer": {
+        "type": "oauth2",
+        "flows": {
+          "password": {
+            "scopes": {},
+            "tokenUrl": "/auth/login"
+          }
+        }
       }
     }
   }

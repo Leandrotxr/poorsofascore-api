@@ -2,9 +2,10 @@ import { useIsFetching, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { API_URL, consultas, mensagemDe, type NomeRecurso } from './api'
 import { Icone } from './components/Icone'
+import { BotaoSessao } from './components/Sessao'
 import { Codigo, StatCard } from './components/ui'
 import { VISUAL } from './estilo'
-import { useAba } from './hooks'
+import { useAba, useSessao } from './hooks'
 
 const ABAS: NomeRecurso[] = ['federacoes', 'campeonatos', 'partidas', 'equipes', 'jogadores', 'tecnicos', 'arbitros']
 
@@ -26,6 +27,7 @@ export function Layout() {
   const buscando = useIsFetching() > 0
   const atualizadoEm = resumo.dataUpdatedAt ? new Date(resumo.dataUpdatedAt) : null
   const abaValida = ABAS.includes(aba)
+  const { podeEditar } = useSessao()
 
   return (
     <div className="min-h-screen">
@@ -55,6 +57,7 @@ export function Layout() {
               <Icone nome="atualizar" className={`size-4 ${buscando ? 'animate-spin' : ''}`} />
               <span className="hidden sm:inline">Atualizar</span>
             </button>
+            <BotaoSessao />
           </div>
         </header>
 
@@ -62,6 +65,8 @@ export function Layout() {
           <ErroConexao mensagem={mensagemDe(resumo.error)} onTentar={() => void resumo.refetch()} />
         ) : (
           <main>
+            {abaValida && (
+              <>
             <section className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4 xl:grid-cols-7">
               {ABAS.map((a, i) => (
                 <StatCard
@@ -101,7 +106,7 @@ export function Layout() {
                   ))}
                 </div>
               </nav>
-              {abaValida && (
+              {abaValida && podeEditar && (
                 <Link
                   to={{ pathname: `/${aba}/novo`, search }}
                   className="inline-flex shrink-0 items-center justify-center gap-2 self-start rounded-full bg-tinta px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-tinta/85 xl:self-auto"
@@ -110,6 +115,9 @@ export function Layout() {
                 </Link>
               )}
             </div>
+
+              </>
+            )}
 
             <Outlet />
           </main>
