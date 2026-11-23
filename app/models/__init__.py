@@ -1,4 +1,5 @@
 # Importar todos os modelos aqui garante que o SQLAlchemy e o Alembic os enxerguem.
+from app.models.acesso import PapelUsuario, Usuario
 from app.models.competicao import (
     Campeonato,
     EventoPartida,
@@ -24,6 +25,7 @@ __all__ = [
     "FormatoCampeonato",
     "FuncaoArbitro",
     "Jogador",
+    "PapelUsuario",
     "Partida",
     "PessoaFisica",
     "PessoaJuridica",
@@ -31,5 +33,6 @@ __all__ = [
     "StatusPartida",
     "Tecnico",
     "TipoEvento",
+    "Usuario",
     "campeonato_equipe",
 ]

@@ -24,7 +24,21 @@ class BusinessRuleError(AppError):
     status_code = status.HTTP_422_UNPROCESSABLE_CONTENT
 
 
+class NotAuthenticatedError(AppError):
+    """Sem token ou token inválido/vencido: o cliente precisa (re)fazer login."""
+
+    status_code = status.HTTP_401_UNAUTHORIZED
+
+
+class ForbiddenError(AppError):
+    """Logado, mas sem permissão para a ação."""
+
+    status_code = status.HTTP_403_FORBIDDEN
+
+
 def register_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(AppError)
     async def app_error_handler(_: Request, exc: AppError) -> JSONResponse:
-        return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+        # O 401 avisa o esquema esperado (RFC 6750), como o próprio FastAPI faz.
+        headers = {"WWW-Authenticate": "Bearer"} if isinstance(exc, NotAuthenticatedError) else None
+        return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail}, headers=headers)

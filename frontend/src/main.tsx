@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client'
 import { RouterProvider } from 'react-router'
 import { ApiError } from './api'
 import { AvisoProvider } from './components/Aviso'
+import { SessaoProvider } from './components/Sessao'
 import './index.css'
 import { router } from './rotas'
 
@@ -21,7 +22,9 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <AvisoProvider>
-        <RouterProvider router={router} />
+        <SessaoProvider>
+          <RouterProvider router={router} />
+        </SessaoProvider>
       </AvisoProvider>
     </QueryClientProvider>
   </StrictMode>,

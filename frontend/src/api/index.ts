@@ -2,7 +2,8 @@ import { keepPreviousData, queryOptions } from '@tanstack/react-query'
 import type * as T from '../types'
 import { querystring, requisitar } from './cliente'
 
-export { API_URL, ApiError, mensagemDe } from './cliente'
+export { API_URL, ApiError, entrar, mensagemDe } from './cliente'
+export { sessao } from './sessao'
 
 const get = <R>(caminho: string) => requisitar<R>('GET', caminho)
 const acao = (metodo: 'PUT' | 'DELETE', caminho: string, corpo?: unknown) => requisitar<unknown>(metodo, caminho, corpo)
@@ -20,6 +21,16 @@ function recurso<Lista, Detalhe, Filtros extends object, Novo, Edicao>(caminho: 
 
 export const api = {
   resumo: () => get<T.Resumo>('/resumo'),
+  eu: () => get<T.Usuario>('/auth/eu'),
+  trocarMinhaSenha: (dados: T.TrocaDeSenha) => requisitar<void>('PUT', '/auth/eu/senha', dados),
+
+  // Gestão de usuários (só ADMIN). Poucos registros: a lista não é paginada.
+  usuarios: {
+    listar: () => get<T.Usuario[]>('/usuarios'),
+    criar: (dados: T.NovoUsuario) => requisitar<T.Usuario>('POST', '/usuarios', dados),
+    editar: (id: number, dados: T.EdicaoUsuario) => requisitar<T.Usuario>('PATCH', `/usuarios/${id}`, dados),
+    remover: (id: number) => requisitar<void>('DELETE', `/usuarios/${id}`),
+  },
 
   federacoes: {
     ...recurso<T.Federacao, T.Federacao, T.FiltrosFederacoes, T.NovaFederacao, T.EdicaoFederacao>('/federacoes'),
@@ -71,6 +82,7 @@ export type NomeRecurso = 'federacoes' | 'campeonatos' | 'partidas' | 'equipes' 
  */
 export const consultas = {
   resumo: () => queryOptions({ queryKey: ['resumo'], queryFn: api.resumo }),
+  usuarios: () => queryOptions({ queryKey: ['usuarios'], queryFn: api.usuarios.listar }),
 
   federacoes: (f: T.FiltrosFederacoes) =>
     queryOptions({ queryKey: ['federacoes', 'lista', f], queryFn: () => api.federacoes.listar(f), placeholderData: keepPreviousData }),

@@ -92,6 +92,13 @@ const ICONES = {
       <path d="M12 7V2M16.5 10.3l4.7-1.5M14.8 15.5l2.9 4M9.2 15.5l-2.9 4M7.5 10.3 2.8 8.8" />
     </>
   ),
+  cadeado: (
+    <>
+      <rect x="4" y="11" width="16" height="10" rx="2" />
+      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+    </>
+  ),
+  sair: <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />,
   esquerda: <path d="m15 18-6-6 6-6" />,
   direita: <path d="m9 18 6-6-6-6" />,
   cartao: <rect x="6" y="3" width="12" height="18" rx="2" transform="rotate(12 12 12)" />,

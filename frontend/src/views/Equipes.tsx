@@ -18,7 +18,7 @@ import { CardLink, Grade, ListaPaginada } from '../components/Lista'
 import { LinhaPartida } from '../components/Partida'
 import { Avatar, CampoBusca, DistribuicaoPosicoes, Etiqueta, PosBadge, Rotulo } from '../components/ui'
 import { formatarCnpj, nomeTomDe, plural } from '../estilo'
-import { useAcao, useFiltrosUrl, useIdRota, useNavegarNaAba, type Executar } from '../hooks'
+import { useAcao, useFiltrosUrl, useIdRota, useNavegarNaAba, useSessao, type Executar } from '../hooks'
 import { POSICOES, type Equipe, type Jogador } from '../types'
 
 export function EquipesLista() {
@@ -247,6 +247,7 @@ function ContratarJogador({ equipe, executar, ocupado }: { equipe: Equipe; execu
   const [numero, setNumero] = useState('')
   const [inicio, setInicio] = useState('')
   const [erro, setErro] = useState<string | null>(null)
+  const { podeEditar } = useSessao()
 
   const fechar = () => {
     setAberto(false)
@@ -256,6 +257,7 @@ function ContratarJogador({ equipe, executar, ocupado }: { equipe: Equipe; execu
     setErro(null)
   }
 
+  if (!podeEditar) return null
   if (!aberto) {
     return (
       <button

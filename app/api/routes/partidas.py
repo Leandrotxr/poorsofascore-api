@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status
 
-from app.api.deps import DbSession, Limit, Skip
+from app.api.deps import ESCRITA, DbSession, Limit, Skip
 from app.models import StatusPartida
 from app.schemas import EventoCreate, Pagina, PartidaCreate, PartidaDetalhe, PartidaOut, PartidaUpdate
 from app.services import partidas as service
@@ -30,19 +30,19 @@ def obter_partida(partida_id: int, db: DbSession):
     return service.obter(db, partida_id)
 
 
-@router.post("", response_model=PartidaDetalhe, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=PartidaDetalhe, status_code=status.HTTP_201_CREATED, dependencies=ESCRITA)
 def criar_partida(dados: PartidaCreate, db: DbSession):
     """As duas equipes precisam estar inscritas no campeonato. A partida nasce AGENDADA."""
     return service.criar(db, dados)
 
 
-@router.patch("/{partida_id}", response_model=PartidaDetalhe)
+@router.patch("/{partida_id}", response_model=PartidaDetalhe, dependencies=ESCRITA)
 def atualizar_partida(partida_id: int, dados: PartidaUpdate, db: DbSession):
     """Também muda o status: AGENDADA → EM_ANDAMENTO → ENCERRADA."""
     return service.atualizar(db, partida_id, dados)
 
 
-@router.delete("/{partida_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{partida_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=ESCRITA)
 def remover_partida(partida_id: int, db: DbSession):
     service.remover(db, partida_id)
 
@@ -50,12 +50,14 @@ def remover_partida(partida_id: int, db: DbSession):
 # ---- Eventos (gols, cartões) ----
 
 
-@router.post("/{partida_id}/eventos", response_model=PartidaDetalhe, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/{partida_id}/eventos", response_model=PartidaDetalhe, status_code=status.HTTP_201_CREATED, dependencies=ESCRITA
+)
 def adicionar_evento(partida_id: int, dados: EventoCreate, db: DbSession):
     """A partida precisa ter começado. A equipe do evento é a equipe atual do jogador."""
     return service.adicionar_evento(db, partida_id, dados)
 
 
-@router.delete("/{partida_id}/eventos/{evento_id}", response_model=PartidaDetalhe)
+@router.delete("/{partida_id}/eventos/{evento_id}", response_model=PartidaDetalhe, dependencies=ESCRITA)
 def remover_evento(partida_id: int, evento_id: int, db: DbSession):
     return service.remover_evento(db, partida_id, evento_id)

@@ -18,7 +18,7 @@ import { CardLink, Grade, ListaPaginada } from '../components/Lista'
 import { LinhaPartida } from '../components/Partida'
 import { Avatar, CampoBusca, Etiqueta, Rotulo } from '../components/ui'
 import { FORMATO, formatarPeriodo, nomeTomDe, plural } from '../estilo'
-import { useAcao, useFiltrosUrl, useIdRota, useNavegarNaAba } from '../hooks'
+import { useAcao, useFiltrosUrl, useIdRota, useNavegarNaAba, useSessao } from '../hooks'
 
 export function CampeonatosLista() {
   const f = useFiltrosUrl()
@@ -307,6 +307,7 @@ function Artilharia({ campeonatoId }: { campeonatoId: number }) {
 function PartidasDoCampeonato({ campeonatoId }: { campeonatoId: number }) {
   const { data } = useQuery(consultas.partidas({ campeonato_id: campeonatoId, limit: 10 }))
   const total = data?.total ?? 0
+  const { podeEditar } = useSessao()
   return (
     <SecaoGaveta titulo="Partidas" extra={plural(total, 'partida', 'partidas')}>
       {data && data.items.length === 0 && <VazioPequeno>Nenhuma partida agendada.</VazioPequeno>}
@@ -316,12 +317,14 @@ function PartidasDoCampeonato({ campeonatoId }: { campeonatoId: number }) {
         ))}
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
+        {podeEditar && (
         <Link
           to={`/partidas/novo?campeonato_id=${campeonatoId}`}
           className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-slate-300 px-3.5 py-1.5 text-sm font-semibold text-slate-600 transition hover:border-tinta hover:bg-fundo hover:text-tinta"
         >
           <Icone nome="mais" /> Nova partida
         </Link>
+        )}
         {total > 10 && (
           <Link
             to={`/partidas?campeonato_id=${campeonatoId}`}

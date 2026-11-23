@@ -102,10 +102,19 @@ cp .env.example .env               # Windows: copy .env.example .env  → depois
 docker compose up -d db            # sobe o PostgreSQL (ver docs/POSTGRESQL.md)
 alembic upgrade head               # cria as tabelas
 python scripts/popular_banco.py     # opcional: dados de exemplo (equipes, partidas, classificação)
+python scripts/criar_usuario.py voce@exemplo.com "Seu Nome" --admin   # login para editar (pede a senha)
 fastapi dev app/main.py            # API em http://localhost:8000
 ```
 
 Documentação interativa: **http://localhost:8000/docs**
+
+## Docker (tudo local)
+
+```bash
+docker compose up -d --build       # banco + API + front → http://localhost:8080
+```
+
+Instalação do Docker, comandos do dia a dia e solução de problemas: [docs/DOCKER.md](docs/DOCKER.md).
 
 ## Testes
 
@@ -136,6 +145,30 @@ A cada push na `main` e em todo pull request, o `.github/workflows/ci.yml` roda:
 - **Front-end:** confere se os tipos gerados batem com a API, ESLint, Vitest e `npm run build` (TypeScript + Vite).
 
 O Dependabot (`.github/dependabot.yml`) abre um PR mensal com as atualizações de dependências.
+
+## Autenticação
+
+A **leitura é pública**; para **alterar dados** é preciso login.
+
+| Papel | Pode |
+|---|---|
+| sem login | ver tudo (todas as rotas `GET`) |
+| `EDITOR` | cadastrar, editar, excluir e relacionar (todas as rotas `POST`/`PATCH`/`PUT`/`DELETE` de dados) |
+| `ADMIN` | tudo do editor + gerenciar usuários (`/usuarios`) |
+
+- `POST /auth/login` (formulário `username` = e-mail, `password`) devolve um **JWT**; mande-o em
+  `Authorization: Bearer <token>`. No `/docs`, o botão **Authorize** faz isso por você.
+- Senhas guardadas com **Argon2**; o login responde igual para e-mail inexistente e senha errada.
+- Desativar um usuário derruba o acesso na hora (o token é conferido contra o banco a cada requisição).
+- A API não deixa o sistema ficar sem nenhum `ADMIN` ativo.
+- Configuração: `SECRET_KEY` (obrigatória e forte quando `AMBIENTE=producao`) e `TOKEN_EXPIRA_MINUTOS` (padrão 8 h).
+
+### Gerenciar usuários
+
+- **No painel:** entre como `ADMIN` e clique em **Usuários** (topo da página) para cadastrar, mudar papel,
+  redefinir senha, desativar ou excluir. Qualquer pessoa logada troca a própria senha pelo botão **Senha**.
+- **No terminal:** `python scripts/criar_usuario.py email@exemplo.com "Nome" [--admin]` (pede a senha).
+- Regras: um admin não desativa nem exclui a própria conta, e o sistema nunca fica sem um `ADMIN` ativo.
 
 ## Endpoints
 
@@ -169,6 +202,11 @@ O Dependabot (`.github/dependabot.yml`) abre um PR mensal com as atualizações 
 | GET/POST | `/arbitros` | lista (`?nome=&funcao=&federacao_id=&sem_federacao=true`) / cria |
 | GET/PATCH/DELETE | `/arbitros/{id}` | detalhe / edita / apaga |
 | GET | `/resumo` | total de registros de cada entidade (cards do painel) |
+| POST | `/auth/login` | login (formulário OAuth2) → token |
+| GET | `/auth/eu` | usuário do token |
+| PUT | `/auth/eu/senha` | troca a própria senha (`senha_atual`, `nova_senha`) |
+| GET/POST | `/usuarios` | lista / cria usuário (só ADMIN) |
+| PATCH/DELETE | `/usuarios/{id}` | muda nome, senha, papel, ativo / apaga (só ADMIN) |
 | GET | `/health` | API e banco no ar |
 
 Toda listagem é paginada (`?skip=0&limit=50`, máximo 100) e responde num envelope com o total:
@@ -177,7 +215,7 @@ Toda listagem é paginada (`?skip=0&limit=50`, máximo 100) e responde num envel
 { "items": [ ... ], "total": 130, "skip": 0, "limit": 50 }
 ```
 
-Erros seguem um formato único: `{"detail": "mensagem"}` com 404 (não encontrado),
+Erros seguem um formato único: `{"detail": "mensagem"}` com 401 (falta login), 403 (sem permissão), 404 (não encontrado),
 409 (conflito, ex. CPF duplicado ou jogador já contratado) e 422 (dado inválido ou regra de negócio).
 
 ## Como adicionar uma tabela nova
@@ -190,6 +228,9 @@ Erros seguem um formato único: `{"detail": "mensagem"}` com 404 (não encontrad
 
 Painel em **React 19 + Vite + Tailwind**, com **React Router** (cada tela tem URL própria) e **TanStack Query**
 (cache e atualização automática depois de cada alteração).
+
+Sem login o painel é **só leitura**; o botão **Entrar** (no topo) libera cadastrar, editar e excluir.
+A sessão fica guardada no navegador e volta ao modo leitura sozinha se o token vencer.
 
 ```bash
 cd frontend

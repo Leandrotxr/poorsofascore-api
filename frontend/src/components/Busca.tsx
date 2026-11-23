@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState, type ReactNode } from 'react'
 import { mensagemDe } from '../api'
-import { useDebounce } from '../hooks'
+import { useDebounce, useSessao } from '../hooks'
 import { Icone } from './Icone'
 
 const LIMITE_BUSCA = 20
@@ -93,7 +93,9 @@ export function Adicionar<T extends Opcao>({
   onEscolher: (c: T) => Promise<unknown>
 }) {
   const [aberto, setAberto] = useState(false)
+  const { podeEditar } = useSessao()
 
+  if (!podeEditar) return null
   if (!aberto) {
     return (
       <button

@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
 import { mensagemDe, type NomeRecurso } from './api'
+import type { Usuario } from './types'
 
 export const POR_PAGINA = 24
 
@@ -15,6 +16,25 @@ export interface Mensagem {
 export const AvisoContexto = createContext<(m: Mensagem) => void>(() => {})
 
 export const useAviso = () => useContext(AvisoContexto)
+
+// ---------- Sessão (login) ----------
+
+export interface Sessao {
+  usuario: Usuario | null
+  /** Logado (EDITOR ou ADMIN): pode criar, editar e excluir. Sem login, o app fica só leitura. */
+  podeEditar: boolean
+  abrirLogin: () => void
+  sair: () => void
+}
+
+export const SessaoContexto = createContext<Sessao>({
+  usuario: null,
+  podeEditar: false,
+  abrirLogin: () => {},
+  sair: () => {},
+})
+
+export const useSessao = () => useContext(SessaoContexto)
 
 // ---------- Ações na API ----------
 

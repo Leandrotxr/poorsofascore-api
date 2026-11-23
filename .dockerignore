@@ -1,0 +1,18 @@
+# Só o necessário vai para a imagem da API (o front tem a própria imagem).
+.git
+.github
+.venv
+venv
+.env
+**/__pycache__
+**/*.pyc
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.coverage
+coverage.xml
+htmlcov
+frontend
+tests
+docs
+*.md
