@@ -65,7 +65,8 @@ tests/                   # pytest
 ```bash
 python -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
+pip install -r requirements-dev.txt   # produção: requirements.txt
+pre-commit install                 # roda lint/format/tipos a cada commit
 
 cp .env.example .env               # Windows: copy .env.example .env  → depois troque as senhas
 docker compose up -d db            # sobe o PostgreSQL (ver docs/POSTGRESQL.md)
@@ -81,6 +82,29 @@ Documentação interativa: **http://localhost:8000/docs**
 pytest                                     # SQLite em memória (rápido)
 TEST_DATABASE_URL=postgresql+psycopg://sofascore_app:SENHA@localhost:5432/poorsofascore_test pytest
 ```
+
+## Qualidade de código
+
+As ferramentas ficam configuradas no `pyproject.toml` e rodam sozinhas no `pre-commit` e no CI.
+
+```bash
+ruff check . --fix        # lint (imports, bugs comuns, sintaxe moderna)
+ruff format .             # formatação
+mypy                      # checagem de tipos em app/
+pytest --cov              # testes + cobertura (mínimo de 85%)
+alembic check             # confere se os models batem com as migrações
+pre-commit run --all-files
+```
+
+### CI (GitHub Actions)
+
+A cada push na `main` e em todo pull request, o `.github/workflows/ci.yml` roda:
+
+- **API:** ruff, mypy, as migrações do zero (`upgrade`, `check`, `downgrade` e `upgrade` de novo) e os testes
+  no **PostgreSQL 17** com cobertura e também no SQLite;
+- **Front-end:** `npm ci` e `npm run build` (TypeScript + Vite).
+
+O Dependabot (`.github/dependabot.yml`) abre um PR mensal com as atualizações de dependências.
 
 ## Endpoints
 

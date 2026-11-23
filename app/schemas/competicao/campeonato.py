@@ -1,11 +1,12 @@
 from datetime import date
+from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.models import Campeonato, FormatoCampeonato
 from app.schemas.resumos import EquipeResumo, FederacaoResumo
 
-_TEMPORADA = {"ge": Campeonato.TEMPORADA_MINIMA, "le": Campeonato.TEMPORADA_MAXIMA}
+Temporada = Annotated[int, Field(ge=Campeonato.TEMPORADA_MINIMA, le=Campeonato.TEMPORADA_MAXIMA)]
 
 
 def _conferir_datas(inicio: date | None, fim: date | None) -> None:
@@ -15,7 +16,7 @@ def _conferir_datas(inicio: date | None, fim: date | None) -> None:
 
 class CampeonatoBase(BaseModel):
     nome: str = Field(min_length=2, max_length=120)
-    temporada: int = Field(description="Ano da temporada, ex.: 2026", **_TEMPORADA)
+    temporada: Temporada = Field(description="Ano da temporada, ex.: 2026")
     formato: FormatoCampeonato
     data_inicio: date | None = None
     data_fim: date | None = None
@@ -34,7 +35,7 @@ class CampeonatoUpdate(BaseModel):
     """PATCH: tudo opcional. As datas são conferidas de novo no service, com os valores já salvos."""
 
     nome: str | None = Field(default=None, min_length=2, max_length=120)
-    temporada: int | None = Field(default=None, **_TEMPORADA)
+    temporada: Temporada | None = None
     formato: FormatoCampeonato | None = None
     data_inicio: date | None = None
     data_fim: date | None = None

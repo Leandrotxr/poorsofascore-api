@@ -12,9 +12,9 @@ if TYPE_CHECKING:
     from app.models.pessoa_juridica.federacao import Federacao
 
 
-class FormatoCampeonato(str, enum.Enum):
-    PONTOS_CORRIDOS = "PONTOS_CORRIDOS"        # Brasileirão, Premier League
-    MATA_MATA = "MATA_MATA"                    # Copa do Brasil
+class FormatoCampeonato(enum.StrEnum):
+    PONTOS_CORRIDOS = "PONTOS_CORRIDOS"  # Brasileirão, Premier League
+    MATA_MATA = "MATA_MATA"  # Copa do Brasil
     GRUPOS_E_MATA_MATA = "GRUPOS_E_MATA_MATA"  # Copa do Mundo, Champions League
 
 

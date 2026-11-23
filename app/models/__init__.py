@@ -4,6 +4,17 @@ from app.models.pessoa_fisica import Arbitro, FuncaoArbitro, Jogador, PessoaFisi
 from app.models.pessoa_juridica import Abrangencia, Equipe, Federacao, PessoaJuridica
 
 __all__ = [
-    "Abrangencia", "Arbitro", "Campeonato", "FormatoCampeonato", "campeonato_equipe", "Equipe", "Federacao", "FuncaoArbitro",
-    "Jogador", "PessoaFisica", "PessoaJuridica", "Posicao", "Tecnico",
+    "Abrangencia",
+    "Arbitro",
+    "Campeonato",
+    "Equipe",
+    "Federacao",
+    "FormatoCampeonato",
+    "FuncaoArbitro",
+    "Jogador",
+    "PessoaFisica",
+    "PessoaJuridica",
+    "Posicao",
+    "Tecnico",
+    "campeonato_equipe",
 ]

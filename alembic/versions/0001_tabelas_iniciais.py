@@ -4,15 +4,17 @@ Revision ID: 0001
 Revises:
 Create Date: 2026-11-19
 """
-from typing import Sequence, Union
+
+from collections.abc import Sequence
 
 import sqlalchemy as sa
+
 from alembic import op
 
 revision: str = "0001"
-down_revision: Union[str, None] = None
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | None = None
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 POSICOES = ("GOLEIRO", "ZAGUEIRO", "LATERAL", "VOLANTE", "MEIA", "ATACANTE")
 
@@ -51,9 +53,7 @@ def upgrade() -> None:
         *_timestamps(),
         sa.PrimaryKeyConstraint("id", name="pk_jogador"),
         sa.UniqueConstraint("cpf", name="uq_jogador_cpf"),
-        sa.ForeignKeyConstraint(
-            ["equipe_id"], ["equipe.id"], name="fk_jogador_equipe_id_equipe", ondelete="SET NULL"
-        ),
+        sa.ForeignKeyConstraint(["equipe_id"], ["equipe.id"], name="fk_jogador_equipe_id_equipe", ondelete="SET NULL"),
         sa.CheckConstraint("idade BETWEEN 14 AND 60", name="ck_jogador_idade_valida"),
     )
     op.create_index("ix_jogador_nome", "jogador", ["nome"])
@@ -72,9 +72,7 @@ def upgrade() -> None:
         sa.UniqueConstraint("cpf", name="uq_tecnico_cpf"),
         # UNIQUE em equipe_id = garantia da relação 1:1 no próprio banco
         sa.UniqueConstraint("equipe_id", name="uq_tecnico_equipe_id"),
-        sa.ForeignKeyConstraint(
-            ["equipe_id"], ["equipe.id"], name="fk_tecnico_equipe_id_equipe", ondelete="SET NULL"
-        ),
+        sa.ForeignKeyConstraint(["equipe_id"], ["equipe.id"], name="fk_tecnico_equipe_id_equipe", ondelete="SET NULL"),
         sa.CheckConstraint("idade BETWEEN 18 AND 100", name="ck_tecnico_idade_valida"),
     )
     op.create_index("ix_tecnico_nome", "tecnico", ["nome"])

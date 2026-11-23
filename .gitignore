@@ -11,3 +11,10 @@ __pycache__/
 # front-end
 node_modules/
 dist/
+
+# ferramentas
+.coverage
+coverage.xml
+htmlcov/
+.mypy_cache/
+.ruff_cache/

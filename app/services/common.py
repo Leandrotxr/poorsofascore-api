@@ -9,7 +9,7 @@ from app.db.base import Base
 M = TypeVar("M", bound=Base)
 
 
-def obter_ou_404(db: Session, modelo: type[M], id_: int, rotulo: str) -> M:
+def obter_ou_404[M: Base](db: Session, modelo: type[M], id_: int, rotulo: str) -> M:
     obj = db.get(modelo, id_)
     if obj is None:
         raise NotFoundError(f"{rotulo} {id_} não encontrado(a)")

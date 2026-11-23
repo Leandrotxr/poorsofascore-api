@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from pydantic import Field, field_validator
 
 from app.core.validators import validar_cnpj
@@ -5,7 +7,7 @@ from app.models import Abrangencia
 from app.schemas.pessoa_juridica.base import PessoaJuridicaBase, PessoaJuridicaOut, PessoaJuridicaUpdate
 from app.schemas.resumos import ArbitroResumo, CampeonatoResumo, EquipeResumo
 
-_SIGLA = {"min_length": 2, "max_length": 20, "pattern": r"^[A-Za-z0-9]+$"}
+Sigla = Annotated[str, Field(min_length=2, max_length=20, pattern=r"^[A-Za-z0-9]+$")]
 
 
 def _sigla_maiuscula(v: str | None) -> str | None:
@@ -13,7 +15,7 @@ def _sigla_maiuscula(v: str | None) -> str | None:
 
 
 class FederacaoBase(PessoaJuridicaBase):
-    sigla: str = Field(description="Só letras e números, ex.: FIFA, UEFA, CBF", **_SIGLA)
+    sigla: Sigla = Field(description="Só letras e números, ex.: FIFA, UEFA, CBF")
     abrangencia: Abrangencia
 
     _sigla = field_validator("sigla")(_sigla_maiuscula)
@@ -29,7 +31,7 @@ class FederacaoCreate(FederacaoBase):
 
 
 class FederacaoUpdate(PessoaJuridicaUpdate):
-    sigla: str | None = Field(default=None, **_SIGLA)
+    sigla: Sigla | None = None
     abrangencia: Abrangencia | None = None
 
     _sigla = field_validator("sigla")(_sigla_maiuscula)

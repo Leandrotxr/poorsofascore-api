@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from app.models.pessoa_juridica.equipe import Equipe
 
 
-class Posicao(str, enum.Enum):
+class Posicao(enum.StrEnum):
     GOLEIRO = "GOLEIRO"
     ZAGUEIRO = "ZAGUEIRO"
     LATERAL = "LATERAL"

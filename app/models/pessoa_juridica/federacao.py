@@ -12,11 +12,11 @@ if TYPE_CHECKING:
     from app.models.pessoa_juridica.equipe import Equipe
 
 
-class Abrangencia(str, enum.Enum):
-    MUNDIAL = "MUNDIAL"          # FIFA
+class Abrangencia(enum.StrEnum):
+    MUNDIAL = "MUNDIAL"  # FIFA
     CONTINENTAL = "CONTINENTAL"  # UEFA, CONMEBOL
-    NACIONAL = "NACIONAL"        # CBF
-    ESTADUAL = "ESTADUAL"        # FERJ, FPF
+    NACIONAL = "NACIONAL"  # CBF
+    ESTADUAL = "ESTADUAL"  # FERJ, FPF
 
 
 class Federacao(PessoaJuridica):

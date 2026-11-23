@@ -3,6 +3,7 @@
 
 # ---------------- Cadastro e Federação 1:N Campeonatos ----------------
 
+
 def test_cria_campeonato_com_organizadora(client, nova_federacao, novo_campeonato):
     cbf = nova_federacao()
     c = novo_campeonato(cbf["id"], data_inicio="2026-04-12", data_fim="2026-12-06")
@@ -19,7 +20,9 @@ def test_federacao_organizadora_obrigatoria_e_existente(client):
 def test_rejeita_datas_invertidas_e_formato_invalido(client, nova_federacao):
     cbf = nova_federacao()
     base = {"nome": "Copa X", "temporada": 2026, "federacao_id": cbf["id"]}
-    r = client.post("/campeonatos", json={**base, "formato": "MATA_MATA", "data_inicio": "2026-05-01", "data_fim": "2026-04-01"})
+    r = client.post(
+        "/campeonatos", json={**base, "formato": "MATA_MATA", "data_inicio": "2026-05-01", "data_fim": "2026-04-01"}
+    )
     assert r.status_code == 422
     assert client.post("/campeonatos", json={**base, "formato": "AMISTOSO"}).status_code == 422
 
@@ -30,7 +33,12 @@ def test_mesmo_nome_em_temporadas_diferentes(client, nova_federacao, novo_campeo
     novo_campeonato(cbf["id"], temporada=2026)
     r = client.post(
         "/campeonatos",
-        json={"nome": "Brasileirão Série A", "temporada": 2026, "formato": "PONTOS_CORRIDOS", "federacao_id": cbf["id"]},
+        json={
+            "nome": "Brasileirão Série A",
+            "temporada": 2026,
+            "formato": "PONTOS_CORRIDOS",
+            "federacao_id": cbf["id"],
+        },
     )
     assert r.status_code == 409
 
@@ -54,11 +62,14 @@ def test_filtros(client, nova_federacao, novo_campeonato):
     uefa = nova_federacao(nome="UEFA", sigla="UEFA", abrangencia="CONTINENTAL")
     novo_campeonato(cbf["id"], temporada=2025)
     novo_campeonato(uefa["id"], nome="Champions League", formato="GRUPOS_E_MATA_MATA")
-    assert [c["nome"] for c in client.get("/campeonatos", params={"federacao_id": uefa["id"]}).json()] == ["Champions League"]
+    assert [c["nome"] for c in client.get("/campeonatos", params={"federacao_id": uefa["id"]}).json()] == [
+        "Champions League"
+    ]
     assert [c["temporada"] for c in client.get("/campeonatos", params={"temporada": 2025}).json()] == [2025]
 
 
 # ---------------- N:N  Campeonato <-> Equipes ----------------
+
 
 def test_inscrever_varias_equipes(client, nova_federacao, nova_equipe, novo_campeonato):
     c = novo_campeonato(nova_federacao()["id"])
@@ -71,7 +82,10 @@ def test_inscrever_varias_equipes(client, nova_federacao, nova_equipe, novo_camp
 
 def test_equipe_em_varios_campeonatos(client, nova_federacao, nova_equipe, novo_campeonato):
     cbf = nova_federacao()
-    brasileirao, copa = novo_campeonato(cbf["id"]), novo_campeonato(cbf["id"], nome="Copa do Brasil", formato="MATA_MATA")
+    brasileirao, copa = (
+        novo_campeonato(cbf["id"]),
+        novo_campeonato(cbf["id"], nome="Copa do Brasil", formato="MATA_MATA"),
+    )
     fla = nova_equipe()
     client.put(f"/campeonatos/{brasileirao['id']}/equipes/{fla['id']}")
     client.put(f"/campeonatos/{copa['id']}/equipes/{fla['id']}")

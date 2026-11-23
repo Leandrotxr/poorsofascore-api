@@ -17,7 +17,5 @@ class Tecnico(PessoaFisica):
 
     # 1:1 -> unique=True garante NO BANCO que duas linhas não apontem para a mesma equipe.
     # NULL é permitido (técnico sem clube) e o Postgres aceita vários NULLs em coluna UNIQUE.
-    equipe_id: Mapped[int | None] = mapped_column(
-        ForeignKey("equipe.id", ondelete="SET NULL"), unique=True
-    )
+    equipe_id: Mapped[int | None] = mapped_column(ForeignKey("equipe.id", ondelete="SET NULL"), unique=True)
     equipe: Mapped["Equipe | None"] = relationship(back_populates="tecnico")

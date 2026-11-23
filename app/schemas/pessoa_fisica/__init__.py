@@ -3,7 +3,13 @@ from app.schemas.pessoa_fisica.jogador import JogadorCreate, JogadorOut, Jogador
 from app.schemas.pessoa_fisica.tecnico import TecnicoCreate, TecnicoOut, TecnicoUpdate
 
 __all__ = [
-    "ArbitroCreate", "ArbitroOut", "ArbitroUpdate",
-    "JogadorCreate", "JogadorOut", "JogadorUpdate",
-    "TecnicoCreate", "TecnicoOut", "TecnicoUpdate",
+    "ArbitroCreate",
+    "ArbitroOut",
+    "ArbitroUpdate",
+    "JogadorCreate",
+    "JogadorOut",
+    "JogadorUpdate",
+    "TecnicoCreate",
+    "TecnicoOut",
+    "TecnicoUpdate",
 ]

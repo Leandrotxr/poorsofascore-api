@@ -55,6 +55,7 @@ def remover(db: Session, equipe_id: int) -> None:
 
 # ---------- Relação 1:N  Equipe -> Jogadores ----------
 
+
 def contratar_jogador(db: Session, equipe_id: int, jogador_id: int) -> Equipe:
     equipe = obter_ou_404(db, Equipe, equipe_id, "Equipe")
     jogador = obter_ou_404(db, Jogador, jogador_id, "Jogador")
@@ -78,6 +79,7 @@ def dispensar_jogador(db: Session, equipe_id: int, jogador_id: int) -> Equipe:
 
 
 # ---------- Relação 1:1  Equipe -> Técnico ----------
+
 
 def definir_tecnico(db: Session, equipe_id: int, tecnico_id: int) -> Equipe:
     equipe = obter_detalhe(db, equipe_id)

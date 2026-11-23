@@ -39,6 +39,7 @@ def remover_federacao(federacao_id: int, db: DbSession):
 
 # ---- Equipes filiadas (1:N) ----
 
+
 @router.put("/{federacao_id}/equipes/{equipe_id}", response_model=FederacaoDetalhe)
 def filiar_equipe(federacao_id: int, equipe_id: int, db: DbSession):
     return service.filiar_equipe(db, federacao_id, equipe_id)
@@ -50,6 +51,7 @@ def desfiliar_equipe(federacao_id: int, equipe_id: int, db: DbSession):
 
 
 # ---- Árbitros (1:N) ----
+
 
 @router.put("/{federacao_id}/arbitros/{arbitro_id}", response_model=FederacaoDetalhe)
 def vincular_arbitro(federacao_id: int, arbitro_id: int, db: DbSession):
