@@ -1,3 +1,5 @@
+import type { NomeRecurso } from './api'
+import type { NomeIcone } from './components/Icone'
 import type { Abrangencia, FormatoCampeonato, FuncaoArbitro, Posicao } from './types'
 
 // Classes completas (o Tailwind só gera classes que aparecem inteiras no código).
@@ -23,6 +25,16 @@ export function nomeTomDe(seed: number): Tom {
 
 export function tomDe(seed: number) {
   return TONS[nomeTomDe(seed)]
+}
+
+/** Cor e ícone de cada entidade (abas, cards do topo, gavetas). */
+export const VISUAL: Record<NomeRecurso, { tom: Tom; icone: NomeIcone; rotulo: string }> = {
+  federacoes: { tom: 'agua', icone: 'globo', rotulo: 'Federações' },
+  campeonatos: { tom: 'menta', icone: 'trofeu', rotulo: 'Campeonatos' },
+  equipes: { tom: 'pessego', icone: 'escudo', rotulo: 'Equipes' },
+  jogadores: { tom: 'ceu', icone: 'pessoas', rotulo: 'Jogadores' },
+  tecnicos: { tom: 'lavanda', icone: 'prancheta', rotulo: 'Técnicos' },
+  arbitros: { tom: 'manteiga', icone: 'cartao', rotulo: 'Árbitros' },
 }
 
 export const POS: Record<Posicao, { rotulo: string; tom: Tom }> = {
@@ -74,11 +86,6 @@ export function formatarCnpj(cnpj: string): string {
   const d = cnpj.replace(/\D/g, '')
   if (d.length !== 14) return cnpj
   return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12)}`
-}
-
-/** Para busca: ignora maiúsculas e acentos ("joao" encontra "João"). */
-export function normalizar(texto: string): string {
-  return texto.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().trim()
 }
 
 export function plural(n: number, singular: string, pluralForma: string): string {

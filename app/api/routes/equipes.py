@@ -1,15 +1,32 @@
 from fastapi import APIRouter, status
 
 from app.api.deps import DbSession, Limit, Skip
-from app.schemas import EquipeCreate, EquipeDetalhe, EquipeOut, EquipeUpdate
+from app.schemas import EquipeCreate, EquipeDetalhe, EquipeOut, EquipeUpdate, Pagina
 from app.services import equipes as service
 
 router = APIRouter(prefix="/equipes", tags=["Equipes"])
 
 
-@router.get("", response_model=list[EquipeOut])
-def listar_equipes(db: DbSession, nome: str | None = None, skip: Skip = 0, limit: Limit = 50):
-    return service.listar(db, nome=nome, skip=skip, limit=limit)
+@router.get("", response_model=Pagina[EquipeDetalhe])
+def listar_equipes(
+    db: DbSession,
+    nome: str | None = None,
+    federacao_id: int | None = None,
+    sem_federacao: bool = False,
+    sem_tecnico: bool = False,
+    skip: Skip = 0,
+    limit: Limit = 50,
+):
+    """Cada equipe já vem com técnico, elenco e campeonatos."""
+    return service.listar(
+        db,
+        nome=nome,
+        federacao_id=federacao_id,
+        sem_federacao=sem_federacao,
+        sem_tecnico=sem_tecnico,
+        skip=skip,
+        limit=limit,
+    )
 
 
 @router.get("/{equipe_id}", response_model=EquipeDetalhe)

@@ -1,10 +1,11 @@
 from datetime import date
 from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, Field, model_validator
 
 from app.models import Campeonato, FormatoCampeonato
 from app.schemas.resumos import EquipeResumo, FederacaoResumo
+from app.schemas.saida import CONFIG_SAIDA
 
 Temporada = Annotated[int, Field(ge=Campeonato.TEMPORADA_MINIMA, le=Campeonato.TEMPORADA_MAXIMA)]
 
@@ -45,7 +46,7 @@ class CampeonatoUpdate(BaseModel):
 class CampeonatoOut(CampeonatoBase):
     """Já traz a organizadora e as equipes: o front monta as relações sem uma chamada por campeonato."""
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = CONFIG_SAIDA
     id: int
     federacao: FederacaoResumo
     equipes: list[EquipeResumo] = []

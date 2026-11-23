@@ -1,8 +1,9 @@
 """Peças comuns a toda pessoa física. As filhas combinam estas classes por herança."""
 
-from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator
+from pydantic import BaseModel, Field, field_serializer, field_validator
 
 from app.core.validators import mascarar_cpf, validar_cpf
+from app.schemas.saida import CONFIG_SAIDA
 
 
 class PessoaFisicaBase(BaseModel):
@@ -33,7 +34,7 @@ class PessoaFisicaUpdate(BaseModel):
 class PessoaFisicaOut(BaseModel):
     """Saída: nunca devolve o CPF completo (minimização de dados, LGPD)."""
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = CONFIG_SAIDA
     id: int
     cpf: str
 

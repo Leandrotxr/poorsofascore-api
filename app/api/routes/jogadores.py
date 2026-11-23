@@ -2,22 +2,25 @@ from fastapi import APIRouter, status
 
 from app.api.deps import DbSession, Limit, Skip
 from app.models import Posicao
-from app.schemas import JogadorCreate, JogadorOut, JogadorUpdate
+from app.schemas import JogadorCreate, JogadorOut, JogadorUpdate, Pagina
 from app.services import jogadores as service
 
 router = APIRouter(prefix="/jogadores", tags=["Jogadores"])
 
 
-@router.get("", response_model=list[JogadorOut])
+@router.get("", response_model=Pagina[JogadorOut])
 def listar_jogadores(
     db: DbSession,
     nome: str | None = None,
     posicao: Posicao | None = None,
+    equipe_id: int | None = None,
     sem_equipe: bool = False,
     skip: Skip = 0,
     limit: Limit = 50,
 ):
-    return service.listar(db, nome=nome, posicao=posicao, sem_equipe=sem_equipe, skip=skip, limit=limit)
+    return service.listar(
+        db, nome=nome, posicao=posicao, equipe_id=equipe_id, sem_equipe=sem_equipe, skip=skip, limit=limit
+    )
 
 
 @router.get("/{jogador_id}", response_model=JogadorOut)

@@ -4,18 +4,18 @@ from sqlalchemy.orm import Session, joinedload
 from app.core.exceptions import ConflictError
 from app.models import Tecnico
 from app.schemas import TecnicoCreate, TecnicoUpdate
-from app.services.common import aplicar_parcial, commit, obter_ou_404
+from app.services.common import Pagina, aplicar_parcial, commit, obter_ou_404, paginar
 
 
 def listar(
     db: Session, *, nome: str | None = None, sem_equipe: bool = False, skip: int = 0, limit: int = 50
-) -> list[Tecnico]:
-    stmt = select(Tecnico).options(joinedload(Tecnico.equipe)).order_by(Tecnico.nome)
+) -> Pagina[Tecnico]:
+    stmt = select(Tecnico)
     if nome:
         stmt = stmt.where(Tecnico.nome.ilike(f"%{nome}%"))
     if sem_equipe:
         stmt = stmt.where(Tecnico.equipe_id.is_(None))
-    return list(db.scalars(stmt.offset(skip).limit(limit)))
+    return paginar(db, stmt, skip=skip, limit=limit, ordem=[Tecnico.nome], opcoes=[joinedload(Tecnico.equipe)])
 
 
 def obter(db: Session, tecnico_id: int) -> Tecnico:

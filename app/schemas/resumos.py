@@ -1,12 +1,13 @@
 """Versões curtas das entidades, usadas dentro de outras respostas (evita import circular)."""
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
 from app.models import FuncaoArbitro, Posicao
+from app.schemas.saida import CONFIG_SAIDA
 
 
 class _Resumo(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+    model_config = CONFIG_SAIDA
     id: int
     nome: str
 
@@ -21,10 +22,12 @@ class FederacaoResumo(_Resumo):
 
 class JogadorResumo(_Resumo):
     posicao: Posicao
+    idade: int
 
 
 class TecnicoResumo(_Resumo):
-    pass
+    idade: int
+    nacionalidade: str
 
 
 class CampeonatoResumo(_Resumo):

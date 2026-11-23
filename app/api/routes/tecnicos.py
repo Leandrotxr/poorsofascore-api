@@ -1,13 +1,13 @@
 from fastapi import APIRouter, status
 
 from app.api.deps import DbSession, Limit, Skip
-from app.schemas import TecnicoCreate, TecnicoOut, TecnicoUpdate
+from app.schemas import Pagina, TecnicoCreate, TecnicoOut, TecnicoUpdate
 from app.services import tecnicos as service
 
 router = APIRouter(prefix="/tecnicos", tags=["Técnicos"])
 
 
-@router.get("", response_model=list[TecnicoOut])
+@router.get("", response_model=Pagina[TecnicoOut])
 def listar_tecnicos(
     db: DbSession, nome: str | None = None, sem_equipe: bool = False, skip: Skip = 0, limit: Limit = 50
 ):

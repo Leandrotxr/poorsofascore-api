@@ -5,7 +5,7 @@ def test_health(client):
 def test_cria_equipe_e_normaliza_cnpj(client, nova_equipe):
     equipe = nova_equipe()
     assert equipe["cnpj"] == "11222333000181"
-    assert client.get("/equipes").json()[0]["nome"] == "Flamengo"
+    assert client.get("/equipes").json()["items"][0]["nome"] == "Flamengo"
 
 
 def test_rejeita_cnpj_invalido(client):
@@ -64,5 +64,5 @@ def test_404_padronizado(client):
 def test_filtro_por_nome(client, novo_jogador):
     novo_jogador(nome="Pedro", posicao="ATACANTE")
     novo_jogador(nome="Gerson", posicao="VOLANTE")
-    nomes = [j["nome"] for j in client.get("/jogadores", params={"nome": "ped"}).json()]
+    nomes = [j["nome"] for j in client.get("/jogadores", params={"nome": "ped"}).json()["items"]]
     assert nomes == ["Pedro"]

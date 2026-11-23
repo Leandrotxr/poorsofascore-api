@@ -1,113 +1,110 @@
-import { api } from '../api'
-import { ABRANGENCIA, formatarCnpj, FUNCAO, nomeTomDe, plural } from '../estilo'
-import type { Arbitro, Campeonato, Equipe, Federacao } from '../types'
+import { useQuery } from '@tanstack/react-query'
+import { api, consultas, mensagemDe } from '../api'
+import { Adicionar } from '../components/Busca'
 import {
-  Adicionar,
-  Avatar,
+  AcoesGaveta,
   BotaoRemover,
-  Etiqueta,
   Gaveta,
-  Icone,
+  GavetaEstado,
   Linha,
-  Rotulo,
+  LinkEntidade,
   SecaoGaveta,
-  Vazio,
   VazioPequeno,
-} from '../ui'
-import type { Executar } from './Equipes'
+} from '../components/Gaveta'
+import { Icone } from '../components/Icone'
+import { CardLink, Grade, ListaPaginada } from '../components/Lista'
+import { Avatar, CampoBusca, Chip, Etiqueta, LinhaChips, Rotulo } from '../components/ui'
+import { ABRANGENCIA, formatarCnpj, FUNCAO, nomeTomDe, plural } from '../estilo'
+import { useAcao, useFiltrosUrl, useIdRota, useNavegarNaAba } from '../hooks'
+import { ABRANGENCIAS, type Abrangencia } from '../types'
 
-export function FederacoesView({
-  federacoes,
-  equipesDe,
-  arbitrosDe,
-  onAbrir,
-}: {
-  federacoes: Federacao[]
-  equipesDe: Map<number, Equipe[]>
-  arbitrosDe: Map<number, Arbitro[]>
-  onAbrir: (id: number) => void
-}) {
-  if (federacoes.length === 0) {
-    return (
-      <Vazio icone="globo" titulo="Nenhuma federação cadastrada">
-        Use o botão <strong>Nova federação</strong>: FIFA, UEFA, CBF…
-      </Vazio>
-    )
-  }
+export function FederacoesLista() {
+  const f = useFiltrosUrl()
+  const q = f.ler('q')
+  const abrangencia = (f.ler('abrangencia') || undefined) as Abrangencia | undefined
+  const consulta = useQuery(consultas.federacoes({ nome: q || undefined, abrangencia, skip: f.skip, limit: f.limit }))
 
   return (
-    <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-      {federacoes.map((f, i) => {
-        const abr = ABRANGENCIA[f.abrangencia]
-        return (
-          <button
-            key={f.id}
-            type="button"
-            onClick={() => onAbrir(f.id)}
-            style={{ animationDelay: `${Math.min(i, 8) * 40}ms` }}
-            className="group animate-rise rounded-3xl border border-borda bg-white p-5 text-left transition duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/5 focus-visible:ring-2 focus-visible:ring-ceu-medio focus-visible:outline-none"
-          >
-            <div className="flex items-start gap-4">
-              <Avatar nome={f.nome} seed={f.id} texto={f.sigla} tamanho="lg" quadrado className="text-base!" />
-              <div className="min-w-0 flex-1">
-                <h3 className="text-lg leading-snug font-bold">{f.nome}</h3>
-                <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500">
-                  <span className="inline-flex items-center gap-1">
-                    <Icone nome="pin" className="size-3.5" />
-                    {f.sede}
-                  </span>
-                  <span className="inline-flex items-center gap-1">
-                    <Icone nome="calendario" className="size-3.5" />
-                    {f.fundacao}
-                  </span>
-                </p>
-              </div>
-            </div>
+    <ListaPaginada
+      consulta={consulta}
+      filtrando={!!q || !!abrangencia}
+      rotulo={['federação', 'federações']}
+      vazio={{ icone: 'globo', titulo: 'Nenhuma federação cadastrada', texto: 'Use o botão Nova federação: FIFA, UEFA, CBF…' }}
+      filtros={
+        <>
+          <CampoBusca valor={q} onBuscar={(v) => f.mudar('q', v)} placeholder="Buscar por nome ou sigla…" />
+          <LinhaChips>
+            <Chip ativo={!abrangencia} onClick={() => f.mudar('abrangencia', '')}>
+              Todas
+            </Chip>
+            {ABRANGENCIAS.map((a) => (
+              <Chip key={a} ativo={abrangencia === a} onClick={() => f.mudar('abrangencia', a)}>
+                {ABRANGENCIA[a].rotulo}
+              </Chip>
+            ))}
+          </LinhaChips>
+        </>
+      }
+    >
+      {(federacoes) => (
+        <Grade>
+          {federacoes.map((fed, i) => {
+            const abr = ABRANGENCIA[fed.abrangencia]
+            return (
+              <CardLink key={fed.id} id={fed.id} indice={i}>
+                <div className="flex items-start gap-4">
+                  <Avatar nome={fed.nome} seed={fed.id} texto={fed.sigla} tamanho="lg" quadrado className="text-base!" />
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-lg leading-snug font-bold">{fed.nome}</h3>
+                    <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500">
+                      <span className="inline-flex items-center gap-1">
+                        <Icone nome="pin" className="size-3.5" />
+                        {fed.sede}
+                      </span>
+                      <span className="inline-flex items-center gap-1">
+                        <Icone nome="calendario" className="size-3.5" />
+                        {fed.fundacao}
+                      </span>
+                    </p>
+                  </div>
+                </div>
 
-            <div className="mt-5 flex flex-wrap items-center gap-2">
-              <Etiqueta tom={abr.tom}>{abr.rotulo}</Etiqueta>
-              <span className="rounded-full bg-fundo px-2.5 py-0.5 text-xs font-semibold text-slate-600">
-                {plural(equipesDe.get(f.id)?.length ?? 0, 'equipe', 'equipes')}
-              </span>
-              <span className="rounded-full bg-fundo px-2.5 py-0.5 text-xs font-semibold text-slate-600">
-                {plural(arbitrosDe.get(f.id)?.length ?? 0, 'árbitro', 'árbitros')}
-              </span>
-              <span className="ml-auto text-xs font-semibold text-slate-500 opacity-0 transition group-hover:opacity-100">
-                Gerenciar →
-              </span>
-            </div>
-          </button>
-        )
-      })}
-    </div>
+                <div className="mt-5 flex flex-wrap items-center gap-2">
+                  <Etiqueta tom={abr.tom}>{abr.rotulo}</Etiqueta>
+                  {[
+                    plural(fed.equipes.length, 'equipe', 'equipes'),
+                    plural(fed.arbitros.length, 'árbitro', 'árbitros'),
+                    plural(fed.campeonatos.length, 'campeonato', 'campeonatos'),
+                  ].map((t) => (
+                    <span key={t} className="rounded-full bg-fundo px-2.5 py-0.5 text-xs font-semibold text-slate-600">
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </CardLink>
+            )
+          })}
+        </Grade>
+      )}
+    </ListaPaginada>
   )
 }
 
-export function FederacaoDrawer({
-  federacao,
-  equipes,
-  arbitros,
-  equipesLivres,
-  arbitrosLivres,
-  campeonatos,
-  executar,
-  ocupado,
-  onFechar,
-}: {
-  federacao: Federacao
-  equipes: Equipe[]
-  arbitros: Arbitro[]
-  equipesLivres: Equipe[]
-  arbitrosLivres: Arbitro[]
-  campeonatos: Campeonato[]
-  executar: Executar
-  ocupado: boolean
-  onFechar: () => void
-}) {
+export function FederacaoPainel() {
+  const id = useIdRota()
+  const navegar = useNavegarNaAba()
+  const fechar = () => navegar()
+  const { data: federacao, error } = useQuery(consultas.federacao(id))
+  const { executar, ocupado } = useAcao()
+
+  if (!federacao) return <GavetaEstado tom="agua" erro={error ? mensagemDe(error) : undefined} onFechar={fechar} />
+
+  const { equipes, arbitros, campeonatos } = federacao
   const abr = ABRANGENCIA[federacao.abrangencia]
+  const tom = nomeTomDe(federacao.id)
   return (
     <Gaveta
-      tom={nomeTomDe(federacao.id)}
+      tom={tom}
       icone={
         <Avatar
           nome={federacao.nome}
@@ -120,7 +117,20 @@ export function FederacaoDrawer({
       }
       titulo={federacao.nome}
       subtitulo={`${federacao.sede} · fundada em ${federacao.fundacao}`}
-      onFechar={onFechar}
+      onFechar={fechar}
+      acoes={
+        <AcoesGaveta
+          tom={tom}
+          rotulo={`a federação ${federacao.sigla}`}
+          consequencia={
+            campeonatos.length > 0
+              ? `Ela organiza ${plural(campeonatos.length, 'campeonato', 'campeonatos')}: a API só deixa excluir depois que eles forem apagados ou passarem para outra organizadora.`
+              : 'As equipes e os árbitros vinculados ficam sem federação.'
+          }
+          excluir={() => api.federacoes.remover(federacao.id)}
+          aoExcluir={fechar}
+        />
+      }
     >
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-2xl bg-fundo px-3 py-2.5">
@@ -147,7 +157,7 @@ export function FederacaoDrawer({
                 <span className="grid size-9 shrink-0 place-items-center rounded-full bg-menta text-menta-forte">
                   <Icone nome="trofeu" className="size-4" />
                 </span>
-                <span className="flex-1 truncate font-medium">{c.nome}</span>
+                <LinkEntidade para={`/campeonatos/${c.id}`}>{c.nome}</LinkEntidade>
                 <span className="text-sm text-slate-500">{c.temporada}</span>
               </Linha>
             ))}
@@ -168,21 +178,21 @@ export function FederacaoDrawer({
                     rotulo={`Desfiliar ${e.nome}`}
                     ocupado={ocupado}
                     onClick={() =>
-                      void executar(() => api.desfiliarEquipe(federacao.id, e.id), `${e.nome} foi desfiliada`)
+                      void executar(() => api.federacoes.desfiliarEquipe(federacao.id, e.id), `${e.nome} foi desfiliada`)
                     }
                   />
                 }
               >
                 <Avatar nome={e.nome} seed={e.id} tamanho="sm" quadrado />
-                <span className="flex-1 truncate font-medium">{e.nome}</span>
-                <span className="text-sm text-slate-500">{e.sede}</span>
+                <LinkEntidade para={`/equipes/${e.id}`}>{e.nome}</LinkEntidade>
               </Linha>
             ))}
           </ul>
         )}
         <Adicionar
           rotulo="Filiar equipe"
-          candidatos={equipesLivres}
+          chave="equipes-sem-federacao"
+          buscar={(nome, limit) => api.equipes.listar({ nome, limit, sem_federacao: true }).then((p) => p.items)}
           vazio="Todas as equipes já são filiadas a alguma federação."
           ocupado={ocupado}
           item={(e) => (
@@ -193,7 +203,7 @@ export function FederacaoDrawer({
             </>
           )}
           onEscolher={(e) =>
-            executar(() => api.filiarEquipe(federacao.id, e.id), `${e.nome} filiada à ${federacao.sigla}`)
+            executar(() => api.federacoes.filiarEquipe(federacao.id, e.id), `${e.nome} filiada à ${federacao.sigla}`)
           }
         />
       </SecaoGaveta>
@@ -211,13 +221,13 @@ export function FederacaoDrawer({
                     rotulo={`Desvincular ${a.nome}`}
                     ocupado={ocupado}
                     onClick={() =>
-                      void executar(() => api.desvincularArbitro(federacao.id, a.id), `${a.nome} foi desvinculado`)
+                      void executar(() => api.federacoes.desvincularArbitro(federacao.id, a.id), `${a.nome} foi desvinculado`)
                     }
                   />
                 }
               >
                 <Avatar nome={a.nome} seed={a.id + 1} tamanho="sm" />
-                <span className="flex-1 truncate font-medium">{a.nome}</span>
+                <LinkEntidade para={`/arbitros/${a.id}`}>{a.nome}</LinkEntidade>
                 <Etiqueta tom={FUNCAO[a.funcao].tom}>{FUNCAO[a.funcao].rotulo}</Etiqueta>
               </Linha>
             ))}
@@ -225,8 +235,9 @@ export function FederacaoDrawer({
         )}
         <Adicionar
           rotulo="Vincular árbitro"
-          candidatos={arbitrosLivres}
-          vazio="Nenhum árbitro sem federação. Cadastre um pelo botão Novo árbitro, na aba Árbitros."
+          chave="arbitros-sem-federacao"
+          buscar={(nome, limit) => api.arbitros.listar({ nome, limit, sem_federacao: true }).then((p) => p.items)}
+          vazio="Nenhum árbitro sem federação. Cadastre um na aba Árbitros."
           ocupado={ocupado}
           item={(a) => (
             <>
@@ -236,7 +247,7 @@ export function FederacaoDrawer({
             </>
           )}
           onEscolher={(a) =>
-            executar(() => api.vincularArbitro(federacao.id, a.id), `${a.nome} vinculado à ${federacao.sigla}`)
+            executar(() => api.federacoes.vincularArbitro(federacao.id, a.id), `${a.nome} vinculado à ${federacao.sigla}`)
           }
         />
       </SecaoGaveta>

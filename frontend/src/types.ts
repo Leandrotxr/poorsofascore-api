@@ -1,121 +1,60 @@
-// Espelham os schemas de saída da API (app/schemas/**).
+// Tipos da API, gerados a partir do OpenAPI (src/api/schema.ts, via `npm run tipos`).
+// Aqui só damos nomes curtos. Se a API mudar e os tipos forem regerados, o TypeScript acusa
+// cada lugar do front que precisa acompanhar.
+import type { components, operations } from './api/schema'
 
-export type Posicao = 'GOLEIRO' | 'ZAGUEIRO' | 'LATERAL' | 'VOLANTE' | 'MEIA' | 'ATACANTE'
-export const POSICOES: Posicao[] = ['GOLEIRO', 'ZAGUEIRO', 'LATERAL', 'VOLANTE', 'MEIA', 'ATACANTE']
+type S = components['schemas']
+type Query<Op extends keyof operations> = NonNullable<operations[Op]['parameters']['query']>
 
-export type FuncaoArbitro = 'CENTRAL' | 'ASSISTENTE' | 'VAR'
-export const FUNCOES: FuncaoArbitro[] = ['CENTRAL', 'ASSISTENTE', 'VAR']
+export type Posicao = S['Posicao']
+export type FuncaoArbitro = S['FuncaoArbitro']
+export type Abrangencia = S['Abrangencia']
+export type FormatoCampeonato = S['FormatoCampeonato']
 
-export type Abrangencia = 'MUNDIAL' | 'CONTINENTAL' | 'NACIONAL' | 'ESTADUAL'
-export const ABRANGENCIAS: Abrangencia[] = ['MUNDIAL', 'CONTINENTAL', 'NACIONAL', 'ESTADUAL']
+// `satisfies` garante que as listas só têm valores que existem no enum da API.
+export const POSICOES = ['GOLEIRO', 'ZAGUEIRO', 'LATERAL', 'VOLANTE', 'MEIA', 'ATACANTE'] as const satisfies readonly Posicao[]
+export const FUNCOES = ['CENTRAL', 'ASSISTENTE', 'VAR'] as const satisfies readonly FuncaoArbitro[]
+export const ABRANGENCIAS = ['MUNDIAL', 'CONTINENTAL', 'NACIONAL', 'ESTADUAL'] as const satisfies readonly Abrangencia[]
+export const FORMATOS = ['PONTOS_CORRIDOS', 'MATA_MATA', 'GRUPOS_E_MATA_MATA'] as const satisfies readonly FormatoCampeonato[]
 
-export type FormatoCampeonato = 'PONTOS_CORRIDOS' | 'MATA_MATA' | 'GRUPOS_E_MATA_MATA'
-export const FORMATOS: FormatoCampeonato[] = ['PONTOS_CORRIDOS', 'MATA_MATA', 'GRUPOS_E_MATA_MATA']
+export type EquipeResumo = S['EquipeResumo']
+export type FederacaoResumo = S['FederacaoResumo']
+export type JogadorResumo = S['JogadorResumo']
 
-export interface EquipeResumo {
-  id: number
-  nome: string
+export type Federacao = S['FederacaoDetalhe']
+export type Equipe = S['EquipeDetalhe']
+export type Campeonato = S['CampeonatoOut']
+export type Jogador = S['JogadorOut']
+export type Tecnico = S['TecnicoOut']
+export type Arbitro = S['ArbitroOut']
+export type Resumo = S['Resumo']
+
+export interface Pagina<T> {
+  items: T[]
+  total: number
+  skip: number
+  limit: number
 }
 
-export interface FederacaoResumo {
-  id: number
-  nome: string
-  sigla: string
-}
+// Corpos de criação (POST) e edição (PATCH)
+export type NovaFederacao = S['FederacaoCreate']
+export type NovaEquipe = S['EquipeCreate']
+export type NovoCampeonato = S['CampeonatoCreate']
+export type NovoJogador = S['JogadorCreate']
+export type NovoTecnico = S['TecnicoCreate']
+export type NovoArbitro = S['ArbitroCreate']
 
-export interface Federacao {
-  id: number
-  nome: string
-  sigla: string
-  abrangencia: Abrangencia
-  cnpj: string | null
-  fundacao: number
-  sede: string
-}
+export type EdicaoFederacao = S['FederacaoUpdate']
+export type EdicaoEquipe = S['EquipeUpdate']
+export type EdicaoCampeonato = S['CampeonatoUpdate']
+export type EdicaoJogador = S['JogadorUpdate']
+export type EdicaoTecnico = S['TecnicoUpdate']
+export type EdicaoArbitro = S['ArbitroUpdate']
 
-export interface Equipe {
-  id: number
-  nome: string
-  cnpj: string
-  fundacao: number
-  sede: string
-  federacao: FederacaoResumo | null
-}
-
-export interface Jogador {
-  id: number
-  nome: string
-  cpf: string // já vem mascarado da API: ***.***.***-09
-  idade: number
-  nacionalidade: string
-  posicao: Posicao
-  equipe: EquipeResumo | null
-}
-
-export interface Tecnico {
-  id: number
-  nome: string
-  cpf: string
-  idade: number
-  nacionalidade: string
-  equipe: EquipeResumo | null
-}
-
-export interface Arbitro {
-  id: number
-  nome: string
-  cpf: string
-  idade: number
-  nacionalidade: string
-  funcao: FuncaoArbitro
-  federacao: FederacaoResumo | null
-}
-
-export interface Campeonato {
-  id: number
-  nome: string
-  temporada: number
-  formato: FormatoCampeonato
-  data_inicio: string | null // "2026-04-12"
-  data_fim: string | null
-  federacao: FederacaoResumo
-  equipes: EquipeResumo[]
-}
-
-// ---------- Corpos de criação (POST) ----------
-
-export interface NovaFederacao {
-  nome: string
-  sigla: string
-  abrangencia: Abrangencia
-  fundacao: number
-  sede: string
-  cnpj: string | null
-}
-
-export interface NovaEquipe {
-  nome: string
-  cnpj: string
-  fundacao: number
-  sede: string
-}
-
-interface NovaPessoa {
-  nome: string
-  cpf: string
-  idade: number
-  nacionalidade: string
-}
-
-export type NovoJogador = NovaPessoa & { posicao: Posicao }
-export type NovoTecnico = NovaPessoa
-export type NovoArbitro = NovaPessoa & { funcao: FuncaoArbitro }
-
-export interface NovoCampeonato {
-  nome: string
-  temporada: number
-  formato: FormatoCampeonato
-  data_inicio: string | null
-  data_fim: string | null
-  federacao_id: number
-}
+// Filtros das listagens (query string)
+export type FiltrosFederacoes = Query<'listar_federacoes_federacoes_get'>
+export type FiltrosCampeonatos = Query<'listar_campeonatos_campeonatos_get'>
+export type FiltrosEquipes = Query<'listar_equipes_equipes_get'>
+export type FiltrosJogadores = Query<'listar_jogadores_jogadores_get'>
+export type FiltrosTecnicos = Query<'listar_tecnicos_tecnicos_get'>
+export type FiltrosArbitros = Query<'listar_arbitros_arbitros_get'>

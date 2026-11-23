@@ -1,0 +1,3750 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Poor SofaScore API",
+    "description": "API de gerenciamento de federações, campeonatos, equipes, jogadores, técnicos e árbitros.",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/federacoes": {
+      "get": {
+        "tags": [
+          "Federações"
+        ],
+        "summary": "Listar Federacoes",
+        "description": "Filtro `nome` procura no nome e na sigla. Cada federação já vem com equipes, árbitros e campeonatos.",
+        "operationId": "listar_federacoes_federacoes_get",
+        "parameters": [
+          {
+            "name": "nome",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Nome"
+            }
+          },
+          {
+            "name": "abrangencia",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/Abrangencia"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Abrangencia"
+            }
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Quantos registros pular",
+              "default": 0,
+              "title": "Skip"
+            },
+            "description": "Quantos registros pular"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Máximo de registros por página",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Máximo de registros por página"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pagina_FederacaoDetalhe_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Federações"
+        ],
+        "summary": "Criar Federacao",
+        "operationId": "criar_federacao_federacoes_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FederacaoCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FederacaoOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/federacoes/{federacao_id}": {
+      "get": {
+        "tags": [
+          "Federações"
+        ],
+        "summary": "Obter Federacao",
+        "description": "Retorna a federação com as equipes filiadas e os árbitros.",
+        "operationId": "obter_federacao_federacoes__federacao_id__get",
+        "parameters": [
+          {
+            "name": "federacao_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Federacao Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FederacaoDetalhe"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Federações"
+        ],
+        "summary": "Atualizar Federacao",
+        "operationId": "atualizar_federacao_federacoes__federacao_id__patch",
+        "parameters": [
+          {
+            "name": "federacao_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Federacao Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FederacaoUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FederacaoOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Federações"
+        ],
+        "summary": "Remover Federacao",
+        "operationId": "remover_federacao_federacoes__federacao_id__delete",
+        "parameters": [
+          {
+            "name": "federacao_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Federacao Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/federacoes/{federacao_id}/equipes/{equipe_id}": {
+      "put": {
+        "tags": [
+          "Federações"
+        ],
+        "summary": "Filiar Equipe",
+        "operationId": "filiar_equipe_federacoes__federacao_id__equipes__equipe_id__put",
+        "parameters": [
+          {
+            "name": "federacao_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Federacao Id"
+            }
+          },
+          {
+            "name": "equipe_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Equipe Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FederacaoDetalhe"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Federações"
+        ],
+        "summary": "Desfiliar Equipe",
+        "operationId": "desfiliar_equipe_federacoes__federacao_id__equipes__equipe_id__delete",
+        "parameters": [
+          {
+            "name": "federacao_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Federacao Id"
+            }
+          },
+          {
+            "name": "equipe_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Equipe Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FederacaoDetalhe"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/federacoes/{federacao_id}/arbitros/{arbitro_id}": {
+      "put": {
+        "tags": [
+          "Federações"
+        ],
+        "summary": "Vincular Arbitro",
+        "operationId": "vincular_arbitro_federacoes__federacao_id__arbitros__arbitro_id__put",
+        "parameters": [
+          {
+            "name": "federacao_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Federacao Id"
+            }
+          },
+          {
+            "name": "arbitro_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Arbitro Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FederacaoDetalhe"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Federações"
+        ],
+        "summary": "Desvincular Arbitro",
+        "operationId": "desvincular_arbitro_federacoes__federacao_id__arbitros__arbitro_id__delete",
+        "parameters": [
+          {
+            "name": "federacao_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Federacao Id"
+            }
+          },
+          {
+            "name": "arbitro_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Arbitro Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FederacaoDetalhe"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/campeonatos": {
+      "get": {
+        "tags": [
+          "Campeonatos"
+        ],
+        "summary": "Listar Campeonatos",
+        "operationId": "listar_campeonatos_campeonatos_get",
+        "parameters": [
+          {
+            "name": "nome",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Nome"
+            }
+          },
+          {
+            "name": "temporada",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Temporada"
+            }
+          },
+          {
+            "name": "federacao_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Federacao Id"
+            }
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Quantos registros pular",
+              "default": 0,
+              "title": "Skip"
+            },
+            "description": "Quantos registros pular"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Máximo de registros por página",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Máximo de registros por página"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pagina_CampeonatoOut_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Campeonatos"
+        ],
+        "summary": "Criar Campeonato",
+        "operationId": "criar_campeonato_campeonatos_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampeonatoCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampeonatoOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/campeonatos/{campeonato_id}": {
+      "get": {
+        "tags": [
+          "Campeonatos"
+        ],
+        "summary": "Obter Campeonato",
+        "description": "Retorna o campeonato com a federação organizadora e as equipes participantes.",
+        "operationId": "obter_campeonato_campeonatos__campeonato_id__get",
+        "parameters": [
+          {
+            "name": "campeonato_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Campeonato Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampeonatoOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Campeonatos"
+        ],
+        "summary": "Atualizar Campeonato",
+        "operationId": "atualizar_campeonato_campeonatos__campeonato_id__patch",
+        "parameters": [
+          {
+            "name": "campeonato_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Campeonato Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampeonatoUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampeonatoOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Campeonatos"
+        ],
+        "summary": "Remover Campeonato",
+        "operationId": "remover_campeonato_campeonatos__campeonato_id__delete",
+        "parameters": [
+          {
+            "name": "campeonato_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Campeonato Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/campeonatos/{campeonato_id}/equipes/{equipe_id}": {
+      "put": {
+        "tags": [
+          "Campeonatos"
+        ],
+        "summary": "Inscrever Equipe",
+        "operationId": "inscrever_equipe_campeonatos__campeonato_id__equipes__equipe_id__put",
+        "parameters": [
+          {
+            "name": "campeonato_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Campeonato Id"
+            }
+          },
+          {
+            "name": "equipe_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Equipe Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampeonatoOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Campeonatos"
+        ],
+        "summary": "Remover Equipe",
+        "operationId": "remover_equipe_campeonatos__campeonato_id__equipes__equipe_id__delete",
+        "parameters": [
+          {
+            "name": "campeonato_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Campeonato Id"
+            }
+          },
+          {
+            "name": "equipe_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Equipe Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampeonatoOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equipes": {
+      "get": {
+        "tags": [
+          "Equipes"
+        ],
+        "summary": "Listar Equipes",
+        "description": "Cada equipe já vem com técnico, elenco e campeonatos.",
+        "operationId": "listar_equipes_equipes_get",
+        "parameters": [
+          {
+            "name": "nome",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Nome"
+            }
+          },
+          {
+            "name": "federacao_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Federacao Id"
+            }
+          },
+          {
+            "name": "sem_federacao",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Sem Federacao"
+            }
+          },
+          {
+            "name": "sem_tecnico",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Sem Tecnico"
+            }
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Quantos registros pular",
+              "default": 0,
+              "title": "Skip"
+            },
+            "description": "Quantos registros pular"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Máximo de registros por página",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Máximo de registros por página"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pagina_EquipeDetalhe_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Equipes"
+        ],
+        "summary": "Criar Equipe",
+        "operationId": "criar_equipe_equipes_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EquipeCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EquipeOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equipes/{equipe_id}": {
+      "get": {
+        "tags": [
+          "Equipes"
+        ],
+        "summary": "Obter Equipe",
+        "description": "Retorna a equipe com o técnico (1:1) e o elenco (1:N).",
+        "operationId": "obter_equipe_equipes__equipe_id__get",
+        "parameters": [
+          {
+            "name": "equipe_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Equipe Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EquipeDetalhe"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Equipes"
+        ],
+        "summary": "Atualizar Equipe",
+        "operationId": "atualizar_equipe_equipes__equipe_id__patch",
+        "parameters": [
+          {
+            "name": "equipe_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Equipe Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EquipeUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EquipeOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Equipes"
+        ],
+        "summary": "Remover Equipe",
+        "operationId": "remover_equipe_equipes__equipe_id__delete",
+        "parameters": [
+          {
+            "name": "equipe_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Equipe Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equipes/{equipe_id}/jogadores/{jogador_id}": {
+      "put": {
+        "tags": [
+          "Equipes"
+        ],
+        "summary": "Contratar Jogador",
+        "operationId": "contratar_jogador_equipes__equipe_id__jogadores__jogador_id__put",
+        "parameters": [
+          {
+            "name": "equipe_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Equipe Id"
+            }
+          },
+          {
+            "name": "jogador_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Jogador Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EquipeDetalhe"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Equipes"
+        ],
+        "summary": "Dispensar Jogador",
+        "operationId": "dispensar_jogador_equipes__equipe_id__jogadores__jogador_id__delete",
+        "parameters": [
+          {
+            "name": "equipe_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Equipe Id"
+            }
+          },
+          {
+            "name": "jogador_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Jogador Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EquipeDetalhe"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equipes/{equipe_id}/tecnico/{tecnico_id}": {
+      "put": {
+        "tags": [
+          "Equipes"
+        ],
+        "summary": "Definir Tecnico",
+        "description": "Define o técnico. Se a equipe já tiver um, ele é substituído.",
+        "operationId": "definir_tecnico_equipes__equipe_id__tecnico__tecnico_id__put",
+        "parameters": [
+          {
+            "name": "equipe_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Equipe Id"
+            }
+          },
+          {
+            "name": "tecnico_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Tecnico Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EquipeDetalhe"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equipes/{equipe_id}/tecnico": {
+      "delete": {
+        "tags": [
+          "Equipes"
+        ],
+        "summary": "Remover Tecnico",
+        "operationId": "remover_tecnico_equipes__equipe_id__tecnico_delete",
+        "parameters": [
+          {
+            "name": "equipe_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Equipe Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EquipeDetalhe"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jogadores": {
+      "get": {
+        "tags": [
+          "Jogadores"
+        ],
+        "summary": "Listar Jogadores",
+        "operationId": "listar_jogadores_jogadores_get",
+        "parameters": [
+          {
+            "name": "nome",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Nome"
+            }
+          },
+          {
+            "name": "posicao",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/Posicao"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Posicao"
+            }
+          },
+          {
+            "name": "equipe_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Equipe Id"
+            }
+          },
+          {
+            "name": "sem_equipe",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Sem Equipe"
+            }
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Quantos registros pular",
+              "default": 0,
+              "title": "Skip"
+            },
+            "description": "Quantos registros pular"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Máximo de registros por página",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Máximo de registros por página"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pagina_JogadorOut_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Jogadores"
+        ],
+        "summary": "Criar Jogador",
+        "operationId": "criar_jogador_jogadores_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JogadorCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JogadorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jogadores/{jogador_id}": {
+      "get": {
+        "tags": [
+          "Jogadores"
+        ],
+        "summary": "Obter Jogador",
+        "operationId": "obter_jogador_jogadores__jogador_id__get",
+        "parameters": [
+          {
+            "name": "jogador_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Jogador Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JogadorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Jogadores"
+        ],
+        "summary": "Atualizar Jogador",
+        "operationId": "atualizar_jogador_jogadores__jogador_id__patch",
+        "parameters": [
+          {
+            "name": "jogador_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Jogador Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JogadorUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JogadorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Jogadores"
+        ],
+        "summary": "Remover Jogador",
+        "operationId": "remover_jogador_jogadores__jogador_id__delete",
+        "parameters": [
+          {
+            "name": "jogador_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Jogador Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tecnicos": {
+      "get": {
+        "tags": [
+          "Técnicos"
+        ],
+        "summary": "Listar Tecnicos",
+        "operationId": "listar_tecnicos_tecnicos_get",
+        "parameters": [
+          {
+            "name": "nome",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Nome"
+            }
+          },
+          {
+            "name": "sem_equipe",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Sem Equipe"
+            }
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Quantos registros pular",
+              "default": 0,
+              "title": "Skip"
+            },
+            "description": "Quantos registros pular"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Máximo de registros por página",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Máximo de registros por página"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pagina_TecnicoOut_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Técnicos"
+        ],
+        "summary": "Criar Tecnico",
+        "operationId": "criar_tecnico_tecnicos_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TecnicoCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TecnicoOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tecnicos/{tecnico_id}": {
+      "get": {
+        "tags": [
+          "Técnicos"
+        ],
+        "summary": "Obter Tecnico",
+        "operationId": "obter_tecnico_tecnicos__tecnico_id__get",
+        "parameters": [
+          {
+            "name": "tecnico_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Tecnico Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TecnicoOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Técnicos"
+        ],
+        "summary": "Atualizar Tecnico",
+        "operationId": "atualizar_tecnico_tecnicos__tecnico_id__patch",
+        "parameters": [
+          {
+            "name": "tecnico_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Tecnico Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TecnicoUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TecnicoOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Técnicos"
+        ],
+        "summary": "Remover Tecnico",
+        "operationId": "remover_tecnico_tecnicos__tecnico_id__delete",
+        "parameters": [
+          {
+            "name": "tecnico_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Tecnico Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/arbitros": {
+      "get": {
+        "tags": [
+          "Árbitros"
+        ],
+        "summary": "Listar Arbitros",
+        "operationId": "listar_arbitros_arbitros_get",
+        "parameters": [
+          {
+            "name": "nome",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Nome"
+            }
+          },
+          {
+            "name": "funcao",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/FuncaoArbitro"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Funcao"
+            }
+          },
+          {
+            "name": "federacao_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Federacao Id"
+            }
+          },
+          {
+            "name": "sem_federacao",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Sem Federacao"
+            }
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Quantos registros pular",
+              "default": 0,
+              "title": "Skip"
+            },
+            "description": "Quantos registros pular"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Máximo de registros por página",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Máximo de registros por página"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pagina_ArbitroOut_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Árbitros"
+        ],
+        "summary": "Criar Arbitro",
+        "operationId": "criar_arbitro_arbitros_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArbitroCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArbitroOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/arbitros/{arbitro_id}": {
+      "get": {
+        "tags": [
+          "Árbitros"
+        ],
+        "summary": "Obter Arbitro",
+        "operationId": "obter_arbitro_arbitros__arbitro_id__get",
+        "parameters": [
+          {
+            "name": "arbitro_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Arbitro Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArbitroOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Árbitros"
+        ],
+        "summary": "Atualizar Arbitro",
+        "operationId": "atualizar_arbitro_arbitros__arbitro_id__patch",
+        "parameters": [
+          {
+            "name": "arbitro_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Arbitro Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArbitroUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArbitroOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Árbitros"
+        ],
+        "summary": "Remover Arbitro",
+        "operationId": "remover_arbitro_arbitros__arbitro_id__delete",
+        "parameters": [
+          {
+            "name": "arbitro_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Arbitro Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/resumo": {
+      "get": {
+        "tags": [
+          "Resumo"
+        ],
+        "summary": "Obter Resumo",
+        "description": "Totais de cada entidade, numa única consulta.",
+        "operationId": "obter_resumo_resumo_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Resumo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": [
+          "Infra"
+        ],
+        "summary": "Health",
+        "description": "Confere se a API está no ar e se o banco responde.",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Abrangencia": {
+        "type": "string",
+        "enum": [
+          "MUNDIAL",
+          "CONTINENTAL",
+          "NACIONAL",
+          "ESTADUAL"
+        ],
+        "title": "Abrangencia"
+      },
+      "ArbitroCreate": {
+        "properties": {
+          "cpf": {
+            "type": "string",
+            "title": "Cpf",
+            "description": "Com ou sem máscara: 000.000.000-00"
+          },
+          "nome": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Nome"
+          },
+          "nacionalidade": {
+            "type": "string",
+            "maxLength": 60,
+            "minLength": 2,
+            "title": "Nacionalidade"
+          },
+          "idade": {
+            "type": "integer",
+            "maximum": 65.0,
+            "minimum": 18.0,
+            "title": "Idade"
+          },
+          "funcao": {
+            "$ref": "#/components/schemas/FuncaoArbitro"
+          }
+        },
+        "type": "object",
+        "required": [
+          "cpf",
+          "nome",
+          "nacionalidade",
+          "idade",
+          "funcao"
+        ],
+        "title": "ArbitroCreate"
+      },
+      "ArbitroOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "cpf": {
+            "type": "string",
+            "title": "Cpf"
+          },
+          "nome": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Nome"
+          },
+          "nacionalidade": {
+            "type": "string",
+            "maxLength": 60,
+            "minLength": 2,
+            "title": "Nacionalidade"
+          },
+          "idade": {
+            "type": "integer",
+            "maximum": 65.0,
+            "minimum": 18.0,
+            "title": "Idade"
+          },
+          "funcao": {
+            "$ref": "#/components/schemas/FuncaoArbitro"
+          },
+          "federacao": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FederacaoResumo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "cpf",
+          "nome",
+          "nacionalidade",
+          "idade",
+          "funcao",
+          "federacao"
+        ],
+        "title": "ArbitroOut"
+      },
+      "ArbitroResumo": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "nome": {
+            "type": "string",
+            "title": "Nome"
+          },
+          "funcao": {
+            "$ref": "#/components/schemas/FuncaoArbitro"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nome",
+          "funcao"
+        ],
+        "title": "ArbitroResumo"
+      },
+      "ArbitroUpdate": {
+        "properties": {
+          "nome": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120,
+                "minLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nome"
+          },
+          "nacionalidade": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 60,
+                "minLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nacionalidade"
+          },
+          "idade": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 65.0,
+                "minimum": 18.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idade"
+          },
+          "funcao": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FuncaoArbitro"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "ArbitroUpdate"
+      },
+      "CampeonatoCreate": {
+        "properties": {
+          "nome": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Nome"
+          },
+          "temporada": {
+            "type": "integer",
+            "maximum": 2100.0,
+            "minimum": 1850.0,
+            "title": "Temporada",
+            "description": "Ano da temporada, ex.: 2026"
+          },
+          "formato": {
+            "$ref": "#/components/schemas/FormatoCampeonato"
+          },
+          "data_inicio": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Inicio"
+          },
+          "data_fim": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Fim"
+          },
+          "federacao_id": {
+            "type": "integer",
+            "title": "Federacao Id",
+            "description": "Federação organizadora (obrigatória)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nome",
+          "temporada",
+          "formato",
+          "federacao_id"
+        ],
+        "title": "CampeonatoCreate"
+      },
+      "CampeonatoOut": {
+        "properties": {
+          "nome": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Nome"
+          },
+          "temporada": {
+            "type": "integer",
+            "maximum": 2100.0,
+            "minimum": 1850.0,
+            "title": "Temporada",
+            "description": "Ano da temporada, ex.: 2026"
+          },
+          "formato": {
+            "$ref": "#/components/schemas/FormatoCampeonato"
+          },
+          "data_inicio": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Inicio"
+          },
+          "data_fim": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Fim"
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "federacao": {
+            "$ref": "#/components/schemas/FederacaoResumo"
+          },
+          "equipes": {
+            "items": {
+              "$ref": "#/components/schemas/EquipeResumo"
+            },
+            "type": "array",
+            "title": "Equipes",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "nome",
+          "temporada",
+          "formato",
+          "data_inicio",
+          "data_fim",
+          "id",
+          "federacao",
+          "equipes"
+        ],
+        "title": "CampeonatoOut",
+        "description": "Já traz a organizadora e as equipes: o front monta as relações sem uma chamada por campeonato."
+      },
+      "CampeonatoResumo": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "nome": {
+            "type": "string",
+            "title": "Nome"
+          },
+          "temporada": {
+            "type": "integer",
+            "title": "Temporada"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nome",
+          "temporada"
+        ],
+        "title": "CampeonatoResumo"
+      },
+      "CampeonatoUpdate": {
+        "properties": {
+          "nome": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120,
+                "minLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nome"
+          },
+          "temporada": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 2100.0,
+                "minimum": 1850.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temporada"
+          },
+          "formato": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FormatoCampeonato"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "data_inicio": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Inicio"
+          },
+          "data_fim": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Fim"
+          },
+          "federacao_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Federacao Id"
+          }
+        },
+        "type": "object",
+        "title": "CampeonatoUpdate",
+        "description": "PATCH: tudo opcional. As datas são conferidas de novo no service, com os valores já salvos."
+      },
+      "EquipeCreate": {
+        "properties": {
+          "nome": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Nome"
+          },
+          "fundacao": {
+            "type": "integer",
+            "maximum": 2100.0,
+            "minimum": 1800.0,
+            "title": "Fundacao"
+          },
+          "sede": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Sede"
+          },
+          "cnpj": {
+            "type": "string",
+            "title": "Cnpj",
+            "description": "Com ou sem máscara: 00.000.000/0000-00"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nome",
+          "fundacao",
+          "sede",
+          "cnpj"
+        ],
+        "title": "EquipeCreate"
+      },
+      "EquipeDetalhe": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "nome": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Nome"
+          },
+          "fundacao": {
+            "type": "integer",
+            "maximum": 2100.0,
+            "minimum": 1800.0,
+            "title": "Fundacao"
+          },
+          "sede": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Sede"
+          },
+          "cnpj": {
+            "type": "string",
+            "title": "Cnpj"
+          },
+          "federacao": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FederacaoResumo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tecnico": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TecnicoResumo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "jogadores": {
+            "items": {
+              "$ref": "#/components/schemas/JogadorResumo"
+            },
+            "type": "array",
+            "title": "Jogadores",
+            "default": []
+          },
+          "campeonatos": {
+            "items": {
+              "$ref": "#/components/schemas/CampeonatoResumo"
+            },
+            "type": "array",
+            "title": "Campeonatos",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nome",
+          "fundacao",
+          "sede",
+          "cnpj",
+          "federacao",
+          "tecnico",
+          "jogadores",
+          "campeonatos"
+        ],
+        "title": "EquipeDetalhe",
+        "description": "Equipe com o técnico (1:1), o elenco (1:N) e os campeonatos (N:N)."
+      },
+      "EquipeOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "nome": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Nome"
+          },
+          "fundacao": {
+            "type": "integer",
+            "maximum": 2100.0,
+            "minimum": 1800.0,
+            "title": "Fundacao"
+          },
+          "sede": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Sede"
+          },
+          "cnpj": {
+            "type": "string",
+            "title": "Cnpj"
+          },
+          "federacao": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FederacaoResumo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nome",
+          "fundacao",
+          "sede",
+          "cnpj",
+          "federacao"
+        ],
+        "title": "EquipeOut"
+      },
+      "EquipeResumo": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "nome": {
+            "type": "string",
+            "title": "Nome"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nome"
+        ],
+        "title": "EquipeResumo"
+      },
+      "EquipeUpdate": {
+        "properties": {
+          "nome": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120,
+                "minLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nome"
+          },
+          "fundacao": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 2100.0,
+                "minimum": 1800.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fundacao"
+          },
+          "sede": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120,
+                "minLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sede"
+          }
+        },
+        "type": "object",
+        "title": "EquipeUpdate"
+      },
+      "FederacaoCreate": {
+        "properties": {
+          "nome": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Nome"
+          },
+          "fundacao": {
+            "type": "integer",
+            "maximum": 2100.0,
+            "minimum": 1800.0,
+            "title": "Fundacao"
+          },
+          "sede": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Sede"
+          },
+          "sigla": {
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 2,
+            "pattern": "^[A-Za-z0-9]+$",
+            "title": "Sigla",
+            "description": "Só letras e números, ex.: FIFA, UEFA, CBF"
+          },
+          "abrangencia": {
+            "$ref": "#/components/schemas/Abrangencia"
+          },
+          "cnpj": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cnpj",
+            "description": "Opcional: só entidades brasileiras têm CNPJ"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nome",
+          "fundacao",
+          "sede",
+          "sigla",
+          "abrangencia"
+        ],
+        "title": "FederacaoCreate"
+      },
+      "FederacaoDetalhe": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "nome": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Nome"
+          },
+          "fundacao": {
+            "type": "integer",
+            "maximum": 2100.0,
+            "minimum": 1800.0,
+            "title": "Fundacao"
+          },
+          "sede": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Sede"
+          },
+          "sigla": {
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 2,
+            "pattern": "^[A-Za-z0-9]+$",
+            "title": "Sigla",
+            "description": "Só letras e números, ex.: FIFA, UEFA, CBF"
+          },
+          "abrangencia": {
+            "$ref": "#/components/schemas/Abrangencia"
+          },
+          "cnpj": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cnpj"
+          },
+          "equipes": {
+            "items": {
+              "$ref": "#/components/schemas/EquipeResumo"
+            },
+            "type": "array",
+            "title": "Equipes",
+            "default": []
+          },
+          "arbitros": {
+            "items": {
+              "$ref": "#/components/schemas/ArbitroResumo"
+            },
+            "type": "array",
+            "title": "Arbitros",
+            "default": []
+          },
+          "campeonatos": {
+            "items": {
+              "$ref": "#/components/schemas/CampeonatoResumo"
+            },
+            "type": "array",
+            "title": "Campeonatos",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nome",
+          "fundacao",
+          "sede",
+          "sigla",
+          "abrangencia",
+          "cnpj",
+          "equipes",
+          "arbitros",
+          "campeonatos"
+        ],
+        "title": "FederacaoDetalhe",
+        "description": "Federação com as equipes filiadas, os árbitros e os campeonatos que organiza (todos 1:N)."
+      },
+      "FederacaoOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "nome": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Nome"
+          },
+          "fundacao": {
+            "type": "integer",
+            "maximum": 2100.0,
+            "minimum": 1800.0,
+            "title": "Fundacao"
+          },
+          "sede": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Sede"
+          },
+          "sigla": {
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 2,
+            "pattern": "^[A-Za-z0-9]+$",
+            "title": "Sigla",
+            "description": "Só letras e números, ex.: FIFA, UEFA, CBF"
+          },
+          "abrangencia": {
+            "$ref": "#/components/schemas/Abrangencia"
+          },
+          "cnpj": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cnpj"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nome",
+          "fundacao",
+          "sede",
+          "sigla",
+          "abrangencia",
+          "cnpj"
+        ],
+        "title": "FederacaoOut"
+      },
+      "FederacaoResumo": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "nome": {
+            "type": "string",
+            "title": "Nome"
+          },
+          "sigla": {
+            "type": "string",
+            "title": "Sigla"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nome",
+          "sigla"
+        ],
+        "title": "FederacaoResumo"
+      },
+      "FederacaoUpdate": {
+        "properties": {
+          "nome": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120,
+                "minLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nome"
+          },
+          "fundacao": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 2100.0,
+                "minimum": 1800.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fundacao"
+          },
+          "sede": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120,
+                "minLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sede"
+          },
+          "sigla": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 20,
+                "minLength": 2,
+                "pattern": "^[A-Za-z0-9]+$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sigla"
+          },
+          "abrangencia": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Abrangencia"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "FederacaoUpdate"
+      },
+      "FormatoCampeonato": {
+        "type": "string",
+        "enum": [
+          "PONTOS_CORRIDOS",
+          "MATA_MATA",
+          "GRUPOS_E_MATA_MATA"
+        ],
+        "title": "FormatoCampeonato"
+      },
+      "FuncaoArbitro": {
+        "type": "string",
+        "enum": [
+          "CENTRAL",
+          "ASSISTENTE",
+          "VAR"
+        ],
+        "title": "FuncaoArbitro"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "JogadorCreate": {
+        "properties": {
+          "cpf": {
+            "type": "string",
+            "title": "Cpf",
+            "description": "Com ou sem máscara: 000.000.000-00"
+          },
+          "nome": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Nome"
+          },
+          "nacionalidade": {
+            "type": "string",
+            "maxLength": 60,
+            "minLength": 2,
+            "title": "Nacionalidade"
+          },
+          "idade": {
+            "type": "integer",
+            "maximum": 60.0,
+            "minimum": 14.0,
+            "title": "Idade"
+          },
+          "posicao": {
+            "$ref": "#/components/schemas/Posicao"
+          }
+        },
+        "type": "object",
+        "required": [
+          "cpf",
+          "nome",
+          "nacionalidade",
+          "idade",
+          "posicao"
+        ],
+        "title": "JogadorCreate"
+      },
+      "JogadorOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "cpf": {
+            "type": "string",
+            "title": "Cpf"
+          },
+          "nome": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Nome"
+          },
+          "nacionalidade": {
+            "type": "string",
+            "maxLength": 60,
+            "minLength": 2,
+            "title": "Nacionalidade"
+          },
+          "idade": {
+            "type": "integer",
+            "maximum": 60.0,
+            "minimum": 14.0,
+            "title": "Idade"
+          },
+          "posicao": {
+            "$ref": "#/components/schemas/Posicao"
+          },
+          "equipe": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EquipeResumo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "cpf",
+          "nome",
+          "nacionalidade",
+          "idade",
+          "posicao",
+          "equipe"
+        ],
+        "title": "JogadorOut"
+      },
+      "JogadorResumo": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "nome": {
+            "type": "string",
+            "title": "Nome"
+          },
+          "posicao": {
+            "$ref": "#/components/schemas/Posicao"
+          },
+          "idade": {
+            "type": "integer",
+            "title": "Idade"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nome",
+          "posicao",
+          "idade"
+        ],
+        "title": "JogadorResumo"
+      },
+      "JogadorUpdate": {
+        "properties": {
+          "nome": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120,
+                "minLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nome"
+          },
+          "nacionalidade": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 60,
+                "minLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nacionalidade"
+          },
+          "idade": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 60.0,
+                "minimum": 14.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idade"
+          },
+          "posicao": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Posicao"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "JogadorUpdate"
+      },
+      "Pagina_ArbitroOut_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ArbitroOut"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "Quantos registros existem com os filtros aplicados (todas as páginas)"
+          },
+          "skip": {
+            "type": "integer",
+            "title": "Skip"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "skip",
+          "limit"
+        ],
+        "title": "Pagina[ArbitroOut]"
+      },
+      "Pagina_CampeonatoOut_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CampeonatoOut"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "Quantos registros existem com os filtros aplicados (todas as páginas)"
+          },
+          "skip": {
+            "type": "integer",
+            "title": "Skip"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "skip",
+          "limit"
+        ],
+        "title": "Pagina[CampeonatoOut]"
+      },
+      "Pagina_EquipeDetalhe_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/EquipeDetalhe"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "Quantos registros existem com os filtros aplicados (todas as páginas)"
+          },
+          "skip": {
+            "type": "integer",
+            "title": "Skip"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "skip",
+          "limit"
+        ],
+        "title": "Pagina[EquipeDetalhe]"
+      },
+      "Pagina_FederacaoDetalhe_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/FederacaoDetalhe"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "Quantos registros existem com os filtros aplicados (todas as páginas)"
+          },
+          "skip": {
+            "type": "integer",
+            "title": "Skip"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "skip",
+          "limit"
+        ],
+        "title": "Pagina[FederacaoDetalhe]"
+      },
+      "Pagina_JogadorOut_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/JogadorOut"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "Quantos registros existem com os filtros aplicados (todas as páginas)"
+          },
+          "skip": {
+            "type": "integer",
+            "title": "Skip"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "skip",
+          "limit"
+        ],
+        "title": "Pagina[JogadorOut]"
+      },
+      "Pagina_TecnicoOut_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/TecnicoOut"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "Quantos registros existem com os filtros aplicados (todas as páginas)"
+          },
+          "skip": {
+            "type": "integer",
+            "title": "Skip"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "skip",
+          "limit"
+        ],
+        "title": "Pagina[TecnicoOut]"
+      },
+      "Posicao": {
+        "type": "string",
+        "enum": [
+          "GOLEIRO",
+          "ZAGUEIRO",
+          "LATERAL",
+          "VOLANTE",
+          "MEIA",
+          "ATACANTE"
+        ],
+        "title": "Posicao"
+      },
+      "Resumo": {
+        "properties": {
+          "federacoes": {
+            "type": "integer",
+            "title": "Federacoes"
+          },
+          "campeonatos": {
+            "type": "integer",
+            "title": "Campeonatos"
+          },
+          "equipes": {
+            "type": "integer",
+            "title": "Equipes"
+          },
+          "jogadores": {
+            "type": "integer",
+            "title": "Jogadores"
+          },
+          "tecnicos": {
+            "type": "integer",
+            "title": "Tecnicos"
+          },
+          "arbitros": {
+            "type": "integer",
+            "title": "Arbitros"
+          }
+        },
+        "type": "object",
+        "required": [
+          "federacoes",
+          "campeonatos",
+          "equipes",
+          "jogadores",
+          "tecnicos",
+          "arbitros"
+        ],
+        "title": "Resumo",
+        "description": "Quantos registros existem de cada entidade (cards do painel)."
+      },
+      "TecnicoCreate": {
+        "properties": {
+          "cpf": {
+            "type": "string",
+            "title": "Cpf",
+            "description": "Com ou sem máscara: 000.000.000-00"
+          },
+          "nome": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Nome"
+          },
+          "nacionalidade": {
+            "type": "string",
+            "maxLength": 60,
+            "minLength": 2,
+            "title": "Nacionalidade"
+          },
+          "idade": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 18.0,
+            "title": "Idade"
+          }
+        },
+        "type": "object",
+        "required": [
+          "cpf",
+          "nome",
+          "nacionalidade",
+          "idade"
+        ],
+        "title": "TecnicoCreate"
+      },
+      "TecnicoOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "cpf": {
+            "type": "string",
+            "title": "Cpf"
+          },
+          "nome": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Nome"
+          },
+          "nacionalidade": {
+            "type": "string",
+            "maxLength": 60,
+            "minLength": 2,
+            "title": "Nacionalidade"
+          },
+          "idade": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 18.0,
+            "title": "Idade"
+          },
+          "equipe": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EquipeResumo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "cpf",
+          "nome",
+          "nacionalidade",
+          "idade",
+          "equipe"
+        ],
+        "title": "TecnicoOut"
+      },
+      "TecnicoResumo": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "nome": {
+            "type": "string",
+            "title": "Nome"
+          },
+          "idade": {
+            "type": "integer",
+            "title": "Idade"
+          },
+          "nacionalidade": {
+            "type": "string",
+            "title": "Nacionalidade"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nome",
+          "idade",
+          "nacionalidade"
+        ],
+        "title": "TecnicoResumo"
+      },
+      "TecnicoUpdate": {
+        "properties": {
+          "nome": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120,
+                "minLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nome"
+          },
+          "nacionalidade": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 60,
+                "minLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nacionalidade"
+          },
+          "idade": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 100.0,
+                "minimum": 18.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idade"
+          }
+        },
+        "type": "object",
+        "title": "TecnicoUpdate"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}
