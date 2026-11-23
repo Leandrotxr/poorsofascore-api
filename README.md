@@ -102,7 +102,7 @@ A cada push na `main` e em todo pull request, o `.github/workflows/ci.yml` roda:
 
 - **API:** ruff, mypy, as migrações do zero (`upgrade`, `check`, `downgrade` e `upgrade` de novo) e os testes
   no **PostgreSQL 17** com cobertura e também no SQLite;
-- **Front-end:** `npm ci` e `npm run build` (TypeScript + Vite).
+- **Front-end:** confere se os tipos gerados batem com a API, ESLint, Vitest e `npm run build` (TypeScript + Vite).
 
 O Dependabot (`.github/dependabot.yml`) abre um PR mensal com as atualizações de dependências.
 
@@ -110,26 +110,33 @@ O Dependabot (`.github/dependabot.yml`) abre um PR mensal com as atualizações 
 
 | Método | Rota | O que faz |
 |---|---|---|
-| GET/POST | `/equipes` | lista (filtro `?nome=`, paginação `?skip=&limit=`) / cria |
+| GET/POST | `/equipes` | lista (`?nome=&federacao_id=&sem_federacao=true&sem_tecnico=true`, já com técnico, elenco e campeonatos) / cria |
 | GET/PATCH/DELETE | `/equipes/{id}` | detalhe com técnico e elenco / edita / apaga |
 | PUT | `/equipes/{id}/jogadores/{jogador_id}` | contrata jogador |
 | DELETE | `/equipes/{id}/jogadores/{jogador_id}` | dispensa jogador |
 | PUT | `/equipes/{id}/tecnico/{tecnico_id}` | define técnico (substitui o atual) |
 | DELETE | `/equipes/{id}/tecnico` | remove técnico |
-| GET/POST | `/federacoes` | lista (`?nome=` busca nome e sigla, `?abrangencia=`) / cria |
+| GET/POST | `/federacoes` | lista (`?nome=` busca nome e sigla, `?abrangencia=`, já com equipes, árbitros e campeonatos) / cria |
 | GET/PATCH/DELETE | `/federacoes/{id}` | detalhe (com equipes e árbitros) / edita / apaga |
 | PUT/DELETE | `/federacoes/{id}/equipes/{equipe_id}` | filia / desfilia equipe |
 | PUT/DELETE | `/federacoes/{id}/arbitros/{arbitro_id}` | vincula / desvincula árbitro |
 | GET/POST | `/campeonatos` | lista (`?nome=&temporada=&federacao_id=`) / cria (exige `federacao_id`) |
 | GET/PATCH/DELETE | `/campeonatos/{id}` | detalhe (com organizadora e equipes) / edita / apaga |
 | PUT/DELETE | `/campeonatos/{id}/equipes/{equipe_id}` | inscreve / remove equipe |
-| GET/POST | `/jogadores` | lista (`?nome=&posicao=&sem_equipe=true`) / cria |
+| GET/POST | `/jogadores` | lista (`?nome=&posicao=&equipe_id=&sem_equipe=true`) / cria |
 | GET/PATCH/DELETE | `/jogadores/{id}` | detalhe / edita / apaga |
 | GET/POST | `/tecnicos` | lista (`?nome=&sem_equipe=true`) / cria |
 | GET/PATCH/DELETE | `/tecnicos/{id}` | detalhe / edita / apaga |
-| GET/POST | `/arbitros` | lista (`?nome=&funcao=&sem_federacao=true`) / cria |
+| GET/POST | `/arbitros` | lista (`?nome=&funcao=&federacao_id=&sem_federacao=true`) / cria |
 | GET/PATCH/DELETE | `/arbitros/{id}` | detalhe / edita / apaga |
+| GET | `/resumo` | total de registros de cada entidade (cards do painel) |
 | GET | `/health` | API e banco no ar |
+
+Toda listagem é paginada (`?skip=0&limit=50`, máximo 100) e responde num envelope com o total:
+
+```json
+{ "items": [ ... ], "total": 130, "skip": 0, "limit": 50 }
+```
 
 Erros seguem um formato único: `{"detail": "mensagem"}` com 404 (não encontrado),
 409 (conflito, ex. CPF duplicado ou jogador já contratado) e 422 (dado inválido ou regra de negócio).
@@ -142,8 +149,8 @@ Erros seguem um formato único: `{"detail": "mensagem"}` com 404 (não encontrad
 
 ## Front-end (`frontend/`)
 
-Painel em React + Vite + Tailwind para cadastrar, visualizar e relacionar federações, campeonatos,
-equipes, jogadores, técnicos e árbitros (botão "Novo…" em cada aba; clique num card para gerenciar os vínculos).
+Painel em **React 19 + Vite + Tailwind**, com **React Router** (cada tela tem URL própria) e **TanStack Query**
+(cache e atualização automática depois de cada alteração).
 
 ```bash
 cd frontend
@@ -153,3 +160,53 @@ npm run dev                        # http://localhost:5173  (a API precisa estar
 
 A porta 5173 é fixa porque é a origem liberada em `CORS_ORIGINS` no `.env` da API.
 Se a API estiver em outro endereço, crie `frontend/.env` com `VITE_API_URL=...` (veja `frontend/.env.example`).
+
+### Rotas
+
+Cada aba (`federacoes`, `campeonatos`, `equipes`, `jogadores`, `tecnicos`, `arbitros`) tem as mesmas rotas.
+A lista fica por baixo e as outras abrem uma gaveta lateral por cima:
+
+| Rota | Tela |
+|---|---|
+| `/equipes?q=fla&pagina=2` | lista com busca, filtros e paginação feitas na API (sobrevivem ao F5 e podem ser compartilhadas) |
+| `/equipes/novo` | cadastro |
+| `/equipes/12` | painel com os vínculos (contratar, filiar, inscrever…) e os botões editar/excluir |
+| `/equipes/12/editar` | edição |
+
+### Estrutura
+
+```
+src/
+├── api/
+│   ├── schema.ts      # GERADO a partir do OpenAPI da API (não editar à mão)
+│   ├── cliente.ts     # fetch + tradução dos erros (422 por campo, 409 de regra de negócio)
+│   └── index.ts       # funções da API e consultas do TanStack Query
+├── types.ts           # nomes curtos para os tipos gerados
+├── rotas.tsx          # mapa de rotas
+├── Layout.tsx         # cabeçalho, totais, abas e rodapé
+├── hooks.ts           # filtros na URL, ações com aviso, navegação das gavetas
+├── components/        # gaveta, busca remota, paginação, ícones…
+├── views/             # lista + painel de cada entidade
+├── forms/             # formulários (o mesmo serve para criar e editar)
+└── testes/            # Vitest
+```
+
+### Tipos gerados da API
+
+Os tipos do front vêm do OpenAPI da API, então uma mudança num schema Pydantic aparece como erro
+de TypeScript no front. Depois de mudar a API, com o `.venv` ativado:
+
+```bash
+cd frontend
+npm run tipos:atualizar            # exporta frontend/openapi.json e regera src/api/schema.ts
+```
+
+O CI falha se esses arquivos estiverem desatualizados.
+
+### Scripts
+
+```bash
+npm run lint                       # ESLint
+npm test                           # Vitest
+npm run build                      # TypeScript + build de produção
+```

@@ -82,7 +82,7 @@ jobs:
           if-no-files-found: ignore
 
   frontend:
-    name: Front-end (tipos e build)
+    name: Front-end (tipos, lint, testes e build)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -91,6 +91,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements*.txt
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -98,5 +104,22 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - run: npm ci
+      - run: pip install -r ../requirements.txt
+
+      # Se alguém mudou a API e esqueceu de rodar `npm run tipos:atualizar`, o CI acusa aqui.
+      - name: Tipos do front batem com a API
+        run: |
+          npm run tipos:atualizar
+          git diff --exit-code -- openapi.json src/api/schema.ts || {
+            echo "::error::openapi.json/schema.ts desatualizados. Rode 'npm run tipos:atualizar' (em frontend/) e faça commit."
+            exit 1
+          }
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: Testes (Vitest)
+        run: npm test
+
       - name: TypeScript + build
         run: npm run build

@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session, joinedload
 from app.core.exceptions import ConflictError
 from app.models import Jogador, Posicao
 from app.schemas import JogadorCreate, JogadorUpdate
-from app.services.common import aplicar_parcial, commit, obter_ou_404
+from app.services.common import Pagina, aplicar_parcial, commit, obter_ou_404, paginar
 
 
 def listar(
@@ -12,18 +12,21 @@ def listar(
     *,
     nome: str | None = None,
     posicao: Posicao | None = None,
+    equipe_id: int | None = None,
     sem_equipe: bool = False,
     skip: int = 0,
     limit: int = 50,
-) -> list[Jogador]:
-    stmt = select(Jogador).options(joinedload(Jogador.equipe)).order_by(Jogador.nome)
+) -> Pagina[Jogador]:
+    stmt = select(Jogador)
     if nome:
         stmt = stmt.where(Jogador.nome.ilike(f"%{nome}%"))
     if posicao:
         stmt = stmt.where(Jogador.posicao == posicao)
+    if equipe_id:
+        stmt = stmt.where(Jogador.equipe_id == equipe_id)
     if sem_equipe:
         stmt = stmt.where(Jogador.equipe_id.is_(None))
-    return list(db.scalars(stmt.offset(skip).limit(limit)))
+    return paginar(db, stmt, skip=skip, limit=limit, ordem=[Jogador.nome], opcoes=[joinedload(Jogador.equipe)])
 
 
 def obter(db: Session, jogador_id: int) -> Jogador:

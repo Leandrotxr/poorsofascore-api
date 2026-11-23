@@ -4,25 +4,31 @@ from sqlalchemy.orm import Session, selectinload
 from app.core.exceptions import BusinessRuleError, ConflictError, NotFoundError
 from app.models import Abrangencia, Arbitro, Campeonato, Equipe, Federacao
 from app.schemas import FederacaoCreate, FederacaoUpdate
-from app.services.common import aplicar_parcial, commit, obter_ou_404
+from app.services.common import Pagina, aplicar_parcial, commit, obter_ou_404, paginar
+
+_COM_RELACOES = (
+    selectinload(Federacao.equipes),
+    selectinload(Federacao.arbitros),
+    selectinload(Federacao.campeonatos),
+)
 
 
 def listar(
     db: Session, *, nome: str | None = None, abrangencia: Abrangencia | None = None, skip: int = 0, limit: int = 50
-) -> list[Federacao]:
-    stmt = select(Federacao).order_by(Federacao.nome)
+) -> Pagina[Federacao]:
+    stmt = select(Federacao)
     if nome:
         stmt = stmt.where(Federacao.nome.ilike(f"%{nome}%") | Federacao.sigla.ilike(f"%{nome}%"))
     if abrangencia:
         stmt = stmt.where(Federacao.abrangencia == abrangencia)
-    return list(db.scalars(stmt.offset(skip).limit(limit)))
+    return paginar(db, stmt, skip=skip, limit=limit, ordem=[Federacao.nome], opcoes=_COM_RELACOES)
 
 
 def obter_detalhe(db: Session, federacao_id: int) -> Federacao:
     stmt = (
         select(Federacao)
         .where(Federacao.id == federacao_id)
-        .options(selectinload(Federacao.equipes), selectinload(Federacao.arbitros), selectinload(Federacao.campeonatos))
+        .options(*_COM_RELACOES)
         .execution_options(populate_existing=True)  # sempre relê do banco (dados frescos)
     )
     federacao = db.scalar(stmt)

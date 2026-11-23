@@ -62,10 +62,10 @@ def test_filtros(client, nova_federacao, novo_campeonato):
     uefa = nova_federacao(nome="UEFA", sigla="UEFA", abrangencia="CONTINENTAL")
     novo_campeonato(cbf["id"], temporada=2025)
     novo_campeonato(uefa["id"], nome="Champions League", formato="GRUPOS_E_MATA_MATA")
-    assert [c["nome"] for c in client.get("/campeonatos", params={"federacao_id": uefa["id"]}).json()] == [
+    assert [c["nome"] for c in client.get("/campeonatos", params={"federacao_id": uefa["id"]}).json()["items"]] == [
         "Champions League"
     ]
-    assert [c["temporada"] for c in client.get("/campeonatos", params={"temporada": 2025}).json()] == [2025]
+    assert [c["temporada"] for c in client.get("/campeonatos", params={"temporada": 2025}).json()["items"]] == [2025]
 
 
 # ---------------- N:N  Campeonato <-> Equipes ----------------

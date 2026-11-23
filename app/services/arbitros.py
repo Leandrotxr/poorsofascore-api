@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session, joinedload
 from app.core.exceptions import ConflictError
 from app.models import Arbitro, FuncaoArbitro
 from app.schemas import ArbitroCreate, ArbitroUpdate
-from app.services.common import aplicar_parcial, commit, obter_ou_404
+from app.services.common import Pagina, aplicar_parcial, commit, obter_ou_404, paginar
 
 
 def listar(
@@ -12,18 +12,21 @@ def listar(
     *,
     nome: str | None = None,
     funcao: FuncaoArbitro | None = None,
+    federacao_id: int | None = None,
     sem_federacao: bool = False,
     skip: int = 0,
     limit: int = 50,
-) -> list[Arbitro]:
-    stmt = select(Arbitro).options(joinedload(Arbitro.federacao)).order_by(Arbitro.nome)
+) -> Pagina[Arbitro]:
+    stmt = select(Arbitro)
     if nome:
         stmt = stmt.where(Arbitro.nome.ilike(f"%{nome}%"))
     if funcao:
         stmt = stmt.where(Arbitro.funcao == funcao)
+    if federacao_id:
+        stmt = stmt.where(Arbitro.federacao_id == federacao_id)
     if sem_federacao:
         stmt = stmt.where(Arbitro.federacao_id.is_(None))
-    return list(db.scalars(stmt.offset(skip).limit(limit)))
+    return paginar(db, stmt, skip=skip, limit=limit, ordem=[Arbitro.nome], opcoes=[joinedload(Arbitro.federacao)])
 
 
 def obter(db: Session, arbitro_id: int) -> Arbitro:

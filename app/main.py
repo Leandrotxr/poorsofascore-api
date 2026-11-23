@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
 from app.api.deps import DbSession
-from app.api.routes import arbitros, campeonatos, equipes, federacoes, jogadores, tecnicos
+from app.api.routes import arbitros, campeonatos, equipes, federacoes, jogadores, resumo, tecnicos
 from app.core.config import get_settings
 from app.core.exceptions import register_exception_handlers
 
@@ -31,6 +31,7 @@ app.include_router(equipes.router)
 app.include_router(jogadores.router)
 app.include_router(tecnicos.router)
 app.include_router(arbitros.router)
+app.include_router(resumo.router)
 
 
 @app.get("/health", tags=["Infra"])

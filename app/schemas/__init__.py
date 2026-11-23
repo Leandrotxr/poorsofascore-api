@@ -1,4 +1,5 @@
 from app.schemas.competicao import CampeonatoCreate, CampeonatoOut, CampeonatoUpdate
+from app.schemas.paginacao import Pagina
 from app.schemas.pessoa_fisica import (
     ArbitroCreate,
     ArbitroOut,
@@ -39,6 +40,7 @@ __all__ = [
     "JogadorCreate",
     "JogadorOut",
     "JogadorUpdate",
+    "Pagina",
     "TecnicoCreate",
     "TecnicoOut",
     "TecnicoUpdate",

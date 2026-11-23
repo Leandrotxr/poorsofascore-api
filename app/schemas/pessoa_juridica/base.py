@@ -2,9 +2,10 @@
 
 from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
 
 from app.models import PessoaJuridica
+from app.schemas.saida import CONFIG_SAIDA
 
 Fundacao = Annotated[int, Field(ge=PessoaJuridica.FUNDACAO_MINIMA, le=PessoaJuridica.FUNDACAO_MAXIMA)]
 
@@ -24,5 +25,5 @@ class PessoaJuridicaUpdate(BaseModel):
 
 
 class PessoaJuridicaOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+    model_config = CONFIG_SAIDA
     id: int

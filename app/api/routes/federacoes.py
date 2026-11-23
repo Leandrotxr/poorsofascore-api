@@ -2,17 +2,17 @@ from fastapi import APIRouter, status
 
 from app.api.deps import DbSession, Limit, Skip
 from app.models import Abrangencia
-from app.schemas import FederacaoCreate, FederacaoDetalhe, FederacaoOut, FederacaoUpdate
+from app.schemas import FederacaoCreate, FederacaoDetalhe, FederacaoOut, FederacaoUpdate, Pagina
 from app.services import federacoes as service
 
 router = APIRouter(prefix="/federacoes", tags=["Federações"])
 
 
-@router.get("", response_model=list[FederacaoOut])
+@router.get("", response_model=Pagina[FederacaoDetalhe])
 def listar_federacoes(
     db: DbSession, nome: str | None = None, abrangencia: Abrangencia | None = None, skip: Skip = 0, limit: Limit = 50
 ):
-    """Filtro `nome` procura no nome e na sigla."""
+    """Filtro `nome` procura no nome e na sigla. Cada federação já vem com equipes, árbitros e campeonatos."""
     return service.listar(db, nome=nome, abrangencia=abrangencia, skip=skip, limit=limit)
 
 

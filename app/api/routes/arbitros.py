@@ -2,22 +2,25 @@ from fastapi import APIRouter, status
 
 from app.api.deps import DbSession, Limit, Skip
 from app.models import FuncaoArbitro
-from app.schemas import ArbitroCreate, ArbitroOut, ArbitroUpdate
+from app.schemas import ArbitroCreate, ArbitroOut, ArbitroUpdate, Pagina
 from app.services import arbitros as service
 
 router = APIRouter(prefix="/arbitros", tags=["Árbitros"])
 
 
-@router.get("", response_model=list[ArbitroOut])
+@router.get("", response_model=Pagina[ArbitroOut])
 def listar_arbitros(
     db: DbSession,
     nome: str | None = None,
     funcao: FuncaoArbitro | None = None,
+    federacao_id: int | None = None,
     sem_federacao: bool = False,
     skip: Skip = 0,
     limit: Limit = 50,
 ):
-    return service.listar(db, nome=nome, funcao=funcao, sem_federacao=sem_federacao, skip=skip, limit=limit)
+    return service.listar(
+        db, nome=nome, funcao=funcao, federacao_id=federacao_id, sem_federacao=sem_federacao, skip=skip, limit=limit
+    )
 
 
 @router.get("/{arbitro_id}", response_model=ArbitroOut)

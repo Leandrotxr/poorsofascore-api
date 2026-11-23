@@ -45,8 +45,10 @@ def test_rejeita_sigla_duplicada_e_abrangencia_invalida(client, nova_federacao):
 def test_filtro_federacao_por_abrangencia_e_sigla(client, nova_federacao):
     nova_federacao()
     nova_federacao(nome="Union of European Football Associations", sigla="UEFA", abrangencia="CONTINENTAL")
-    assert [f["sigla"] for f in client.get("/federacoes", params={"abrangencia": "CONTINENTAL"}).json()] == ["UEFA"]
-    assert [f["sigla"] for f in client.get("/federacoes", params={"nome": "uef"}).json()] == ["UEFA"]
+    assert [f["sigla"] for f in client.get("/federacoes", params={"abrangencia": "CONTINENTAL"}).json()["items"]] == [
+        "UEFA"
+    ]
+    assert [f["sigla"] for f in client.get("/federacoes", params={"nome": "uef"}).json()["items"]] == ["UEFA"]
 
 
 def test_arbitro_cpf_mascarado_e_validacoes(client, novo_arbitro):
@@ -115,8 +117,8 @@ def test_filtro_arbitros_sem_federacao_e_por_funcao(client, nova_federacao, novo
     novo_arbitro(nome="Livre", funcao="VAR")
     client.put(f"/federacoes/{cbf['id']}/arbitros/{a1['id']}")
 
-    assert [a["nome"] for a in client.get("/arbitros", params={"sem_federacao": True}).json()] == ["Livre"]
-    assert [a["nome"] for a in client.get("/arbitros", params={"funcao": "VAR"}).json()] == ["Livre"]
+    assert [a["nome"] for a in client.get("/arbitros", params={"sem_federacao": True}).json()["items"]] == ["Livre"]
+    assert [a["nome"] for a in client.get("/arbitros", params={"funcao": "VAR"}).json()["items"]] == ["Livre"]
 
 
 def test_apagar_federacao_libera_equipes_e_arbitros(client, nova_federacao, nova_equipe, novo_arbitro):

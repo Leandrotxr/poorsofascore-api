@@ -45,7 +45,7 @@ def test_filtro_sem_equipe(client, nova_equipe, novo_jogador):
     j1, _ = novo_jogador(nome="Contratado"), novo_jogador(nome="Livre")
     client.put(f"/equipes/{equipe['id']}/jogadores/{j1['id']}")
 
-    livres = client.get("/jogadores", params={"sem_equipe": True}).json()
+    livres = client.get("/jogadores", params={"sem_equipe": True}).json()["items"]
     assert [j["nome"] for j in livres] == ["Livre"]
 
 

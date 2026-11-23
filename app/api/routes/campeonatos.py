@@ -1,13 +1,13 @@
 from fastapi import APIRouter, status
 
 from app.api.deps import DbSession, Limit, Skip
-from app.schemas import CampeonatoCreate, CampeonatoOut, CampeonatoUpdate
+from app.schemas import CampeonatoCreate, CampeonatoOut, CampeonatoUpdate, Pagina
 from app.services import campeonatos as service
 
 router = APIRouter(prefix="/campeonatos", tags=["Campeonatos"])
 
 
-@router.get("", response_model=list[CampeonatoOut])
+@router.get("", response_model=Pagina[CampeonatoOut])
 def listar_campeonatos(
     db: DbSession,
     nome: str | None = None,

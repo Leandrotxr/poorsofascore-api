@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session, joinedload, selectinload
 from app.core.exceptions import BusinessRuleError, ConflictError, NotFoundError
 from app.models import Campeonato, Equipe, Federacao
 from app.schemas import CampeonatoCreate, CampeonatoUpdate
-from app.services.common import aplicar_parcial, commit, obter_ou_404
+from app.services.common import Pagina, aplicar_parcial, commit, obter_ou_404, paginar
 
 _COM_RELACOES = (joinedload(Campeonato.federacao), selectinload(Campeonato.equipes))
 
@@ -17,15 +17,16 @@ def listar(
     federacao_id: int | None = None,
     skip: int = 0,
     limit: int = 50,
-) -> list[Campeonato]:
-    stmt = select(Campeonato).options(*_COM_RELACOES).order_by(Campeonato.temporada.desc(), Campeonato.nome)
+) -> Pagina[Campeonato]:
+    stmt = select(Campeonato)
     if nome:
         stmt = stmt.where(Campeonato.nome.ilike(f"%{nome}%"))
     if temporada:
         stmt = stmt.where(Campeonato.temporada == temporada)
     if federacao_id:
         stmt = stmt.where(Campeonato.federacao_id == federacao_id)
-    return list(db.scalars(stmt.offset(skip).limit(limit)))
+    ordem = [Campeonato.temporada.desc(), Campeonato.nome]
+    return paginar(db, stmt, skip=skip, limit=limit, ordem=ordem, opcoes=_COM_RELACOES)
 
 
 def obter(db: Session, campeonato_id: int) -> Campeonato:

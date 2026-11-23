@@ -1,12 +1,42 @@
-from typing import TypeVar
+from collections.abc import Sequence
+from dataclasses import dataclass
+from typing import Any
 
+from sqlalchemy import Select, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+from sqlalchemy.orm.interfaces import ORMOption
 
 from app.core.exceptions import ConflictError, NotFoundError
 from app.db.base import Base
 
-M = TypeVar("M", bound=Base)
+
+@dataclass
+class Pagina[M]:
+    """Resultado de uma listagem paginada (vira o schema `Pagina[...]` na resposta)."""
+
+    items: list[M]
+    total: int
+    skip: int
+    limit: int
+
+
+def paginar(
+    db: Session,
+    stmt: Select[Any],
+    *,
+    skip: int,
+    limit: int,
+    ordem: Sequence[Any],
+    opcoes: Sequence[ORMOption] = (),
+) -> Pagina[Any]:
+    """
+    Conta o total com os filtros de `stmt` e busca só a página pedida.
+    O COUNT roda sem os `opcoes` de carregamento (JOINs desnecessários para contar).
+    """
+    total = db.scalar(select(func.count()).select_from(stmt.subquery())) or 0
+    items = list(db.scalars(stmt.options(*opcoes).order_by(*ordem).offset(skip).limit(limit)))
+    return Pagina(items=items, total=total, skip=skip, limit=limit)
 
 
 def obter_ou_404[M: Base](db: Session, modelo: type[M], id_: int, rotulo: str) -> M:
