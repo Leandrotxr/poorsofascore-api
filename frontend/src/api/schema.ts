@@ -123,6 +123,47 @@ export interface paths {
         patch: operations["atualizar_campeonato_campeonatos__campeonato_id__patch"];
         trace?: never;
     };
+    "/campeonatos/{campeonato_id}/classificacao": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Classificacao
+         * @description Tabela com todas as equipes inscritas. Só partidas ENCERRADAS contam.
+         *     Desempate: pontos, vitórias, saldo, gols pró.
+         */
+        get: operations["classificacao_campeonatos__campeonato_id__classificacao_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/campeonatos/{campeonato_id}/artilheiros": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Artilheiros
+         * @description Os 20 maiores goleadores (gols contra não contam).
+         */
+        get: operations["artilheiros_campeonatos__campeonato_id__artilheiros_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/campeonatos/{campeonato_id}/equipes/{equipe_id}": {
         parameters: {
             query?: never;
@@ -136,6 +177,92 @@ export interface paths {
         post?: never;
         /** Remover Equipe */
         delete: operations["remover_equipe_campeonatos__campeonato_id__equipes__equipe_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/partidas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar Partidas
+         * @description Ordenadas por rodada e data. `equipe_id` traz os jogos em que a equipe é mandante ou visitante.
+         */
+        get: operations["listar_partidas_partidas_get"];
+        put?: never;
+        /**
+         * Criar Partida
+         * @description As duas equipes precisam estar inscritas no campeonato. A partida nasce AGENDADA.
+         */
+        post: operations["criar_partida_partidas_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/partidas/{partida_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obter Partida
+         * @description Partida com o placar e a lista de eventos (gols e cartões).
+         */
+        get: operations["obter_partida_partidas__partida_id__get"];
+        put?: never;
+        post?: never;
+        /** Remover Partida */
+        delete: operations["remover_partida_partidas__partida_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Atualizar Partida
+         * @description Também muda o status: AGENDADA → EM_ANDAMENTO → ENCERRADA.
+         */
+        patch: operations["atualizar_partida_partidas__partida_id__patch"];
+        trace?: never;
+    };
+    "/partidas/{partida_id}/eventos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Adicionar Evento
+         * @description A partida precisa ter começado. A equipe do evento é a equipe atual do jogador.
+         */
+        post: operations["adicionar_evento_partidas__partida_id__eventos_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/partidas/{partida_id}/eventos/{evento_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remover Evento */
+        delete: operations["remover_evento_partidas__partida_id__eventos__evento_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -192,10 +319,16 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        /** Contratar Jogador */
+        /**
+         * Contratar Jogador
+         * @description Abre um contrato (corpo opcional: `inicio` e `numero_camisa`). O jogador precisa estar livre.
+         */
         put: operations["contratar_jogador_equipes__equipe_id__jogadores__jogador_id__put"];
         post?: never;
-        /** Dispensar Jogador */
+        /**
+         * Dispensar Jogador
+         * @description Encerra o contrato atual (fica no histórico do jogador).
+         */
         delete: operations["dispensar_jogador_equipes__equipe_id__jogadores__jogador_id__delete"];
         options?: never;
         head?: never;
@@ -212,7 +345,7 @@ export interface paths {
         get?: never;
         /**
          * Definir Tecnico
-         * @description Define o técnico. Se a equipe já tiver um, ele é substituído.
+         * @description Define o técnico (corpo opcional: `inicio`). Se a equipe já tiver um, o contrato dele é encerrado.
          */
         put: operations["definir_tecnico_equipes__equipe_id__tecnico__tecnico_id__put"];
         post?: never;
@@ -276,6 +409,26 @@ export interface paths {
         patch: operations["atualizar_jogador_jogadores__jogador_id__patch"];
         trace?: never;
     };
+    "/jogadores/{jogador_id}/contratos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Contratos Do Jogador
+         * @description Histórico de equipes, do contrato mais recente para o mais antigo.
+         */
+        get: operations["contratos_do_jogador_jogadores__jogador_id__contratos_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/tecnicos": {
         parameters: {
             query?: never;
@@ -311,6 +464,26 @@ export interface paths {
         head?: never;
         /** Atualizar Tecnico */
         patch: operations["atualizar_tecnico_tecnicos__tecnico_id__patch"];
+        trace?: never;
+    };
+    "/tecnicos/{tecnico_id}/contratos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Contratos Do Tecnico
+         * @description Histórico de equipes comandadas, do mais recente para o mais antigo.
+         */
+        get: operations["contratos_do_tecnico_tecnicos__tecnico_id__contratos_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/arbitros": {
@@ -410,9 +583,13 @@ export interface components {
             nome: string;
             /** Nacionalidade */
             nacionalidade: string;
-            /** Idade */
-            idade: number;
             funcao: components["schemas"]["FuncaoArbitro"];
+            /**
+             * Data Nascimento
+             * Format: date
+             * @description Idade entre 18 e 65 anos
+             */
+            data_nascimento: string;
         };
         /** ArbitroOut */
         ArbitroOut: {
@@ -420,12 +597,20 @@ export interface components {
             id: number;
             /** Cpf */
             cpf: string;
+            /**
+             * Data Nascimento
+             * Format: date
+             */
+            data_nascimento: string;
+            /**
+             * Idade
+             * @description Calculada a partir da data de nascimento
+             */
+            idade: number;
             /** Nome */
             nome: string;
             /** Nacionalidade */
             nacionalidade: string;
-            /** Idade */
-            idade: number;
             funcao: components["schemas"]["FuncaoArbitro"];
             federacao: components["schemas"]["FederacaoResumo"] | null;
         };
@@ -443,9 +628,16 @@ export interface components {
             nome?: string | null;
             /** Nacionalidade */
             nacionalidade?: string | null;
-            /** Idade */
-            idade?: number | null;
+            /** Data Nascimento */
+            data_nascimento?: string | null;
             funcao?: components["schemas"]["FuncaoArbitro"] | null;
+        };
+        /** Artilheiro */
+        Artilheiro: {
+            jogador: components["schemas"]["PessoaResumo"];
+            equipe: components["schemas"]["EquipeResumo"];
+            /** Gols */
+            gols: number;
         };
         /** CampeonatoCreate */
         CampeonatoCreate: {
@@ -519,6 +711,58 @@ export interface components {
             /** Federacao Id */
             federacao_id?: number | null;
         };
+        /**
+         * ContratoJogadorCreate
+         * @description Corpo opcional ao contratar. Sem `inicio`, vale a data de hoje.
+         */
+        ContratoJogadorCreate: {
+            /** Inicio */
+            inicio?: string | null;
+            /** Numero Camisa */
+            numero_camisa?: number | null;
+        };
+        /** ContratoJogadorOut */
+        ContratoJogadorOut: {
+            /** Id */
+            id: number;
+            equipe: components["schemas"]["EquipeResumo"];
+            /**
+             * Inicio
+             * Format: date
+             */
+            inicio: string;
+            /**
+             * Fim
+             * @description Vazio = contrato em andamento
+             */
+            fim: string | null;
+            /** Numero Camisa */
+            numero_camisa: number | null;
+        };
+        /**
+         * ContratoTecnicoCreate
+         * @description Corpo opcional ao definir o técnico. Sem `inicio`, vale a data de hoje.
+         */
+        ContratoTecnicoCreate: {
+            /** Inicio */
+            inicio?: string | null;
+        };
+        /** ContratoTecnicoOut */
+        ContratoTecnicoOut: {
+            /** Id */
+            id: number;
+            equipe: components["schemas"]["EquipeResumo"];
+            /**
+             * Inicio
+             * Format: date
+             */
+            inicio: string;
+            /**
+             * Fim
+             * @description Vazio = contrato em andamento
+             */
+            fim: string | null;
+        };
         /** EquipeCreate */
         EquipeCreate: {
             /** Nome */
@@ -590,6 +834,28 @@ export interface components {
             fundacao?: number | null;
             /** Sede */
             sede?: string | null;
+        };
+        /** EventoCreate */
+        EventoCreate: {
+            tipo: components["schemas"]["TipoEvento"];
+            /** Minuto */
+            minuto: number;
+            /**
+             * Jogador Id
+             * @description A equipe do evento é a equipe atual do jogador
+             */
+            jogador_id: number;
+        };
+        /** EventoOut */
+        EventoOut: {
+            /** Id */
+            id: number;
+            tipo: components["schemas"]["TipoEvento"];
+            /** Minuto */
+            minuto: number;
+            equipe: components["schemas"]["EquipeResumo"];
+            /** @description Vazio se o jogador foi excluído depois */
+            jogador: components["schemas"]["PessoaResumo"] | null;
         };
         /** FederacaoCreate */
         FederacaoCreate: {
@@ -714,9 +980,13 @@ export interface components {
             nome: string;
             /** Nacionalidade */
             nacionalidade: string;
-            /** Idade */
-            idade: number;
             posicao: components["schemas"]["Posicao"];
+            /**
+             * Data Nascimento
+             * Format: date
+             * @description Idade entre 14 e 60 anos
+             */
+            data_nascimento: string;
         };
         /** JogadorOut */
         JogadorOut: {
@@ -724,14 +994,27 @@ export interface components {
             id: number;
             /** Cpf */
             cpf: string;
+            /**
+             * Data Nascimento
+             * Format: date
+             */
+            data_nascimento: string;
+            /**
+             * Idade
+             * @description Calculada a partir da data de nascimento
+             */
+            idade: number;
             /** Nome */
             nome: string;
             /** Nacionalidade */
             nacionalidade: string;
-            /** Idade */
-            idade: number;
             posicao: components["schemas"]["Posicao"];
             equipe: components["schemas"]["EquipeResumo"] | null;
+            /**
+             * Numero Camisa
+             * @description Número no contrato atual
+             */
+            numero_camisa: number | null;
         };
         /** JogadorResumo */
         JogadorResumo: {
@@ -742,6 +1025,8 @@ export interface components {
             posicao: components["schemas"]["Posicao"];
             /** Idade */
             idade: number;
+            /** Numero Camisa */
+            numero_camisa: number | null;
         };
         /** JogadorUpdate */
         JogadorUpdate: {
@@ -749,9 +1034,36 @@ export interface components {
             nome?: string | null;
             /** Nacionalidade */
             nacionalidade?: string | null;
-            /** Idade */
-            idade?: number | null;
+            /** Data Nascimento */
+            data_nascimento?: string | null;
             posicao?: components["schemas"]["Posicao"] | null;
+        };
+        /** LinhaClassificacao */
+        LinhaClassificacao: {
+            /** Posicao */
+            posicao: number;
+            equipe: components["schemas"]["EquipeResumo"];
+            /** Pontos */
+            pontos: number;
+            /** Jogos */
+            jogos: number;
+            /** Vitorias */
+            vitorias: number;
+            /** Empates */
+            empates: number;
+            /** Derrotas */
+            derrotas: number;
+            /** Gols Pro */
+            gols_pro: number;
+            /** Gols Contra */
+            gols_contra: number;
+            /** Saldo */
+            saldo: number;
+            /**
+             * Aproveitamento
+             * @description Percentual dos pontos possíveis (0 a 100)
+             */
+            aproveitamento: number;
         };
         /** Pagina[ArbitroOut] */
         Pagina_ArbitroOut_: {
@@ -823,6 +1135,20 @@ export interface components {
             /** Limit */
             limit: number;
         };
+        /** Pagina[PartidaOut] */
+        Pagina_PartidaOut_: {
+            /** Items */
+            items: components["schemas"]["PartidaOut"][];
+            /**
+             * Total
+             * @description Quantos registros existem com os filtros aplicados (todas as páginas)
+             */
+            total: number;
+            /** Skip */
+            skip: number;
+            /** Limit */
+            limit: number;
+        };
         /** Pagina[TecnicoOut] */
         Pagina_TecnicoOut_: {
             /** Items */
@@ -836,6 +1162,106 @@ export interface components {
             skip: number;
             /** Limit */
             limit: number;
+        };
+        /** PartidaCreate */
+        PartidaCreate: {
+            /** Campeonato Id */
+            campeonato_id: number;
+            /**
+             * Rodada
+             * @description Rodada (pontos corridos) ou fase (mata-mata)
+             */
+            rodada: number;
+            /** Mandante Id */
+            mandante_id: number;
+            /** Visitante Id */
+            visitante_id: number;
+            /** Data Hora */
+            data_hora?: string | null;
+            /** Local */
+            local?: string | null;
+            /**
+             * Arbitro Id
+             * @description Árbitro central
+             */
+            arbitro_id?: number | null;
+        };
+        /** PartidaDetalhe */
+        PartidaDetalhe: {
+            /** Id */
+            id: number;
+            campeonato: components["schemas"]["CampeonatoResumo"];
+            /** Rodada */
+            rodada: number;
+            /** Data Hora */
+            data_hora: string | null;
+            /** Local */
+            local: string | null;
+            status: components["schemas"]["StatusPartida"];
+            mandante: components["schemas"]["EquipeResumo"];
+            visitante: components["schemas"]["EquipeResumo"];
+            arbitro: components["schemas"]["ArbitroResumo"] | null;
+            /**
+             * Gols Mandante
+             * @description Calculado a partir dos eventos de gol
+             */
+            gols_mandante: number;
+            /** Gols Visitante */
+            gols_visitante: number;
+            /** Eventos */
+            eventos: components["schemas"]["EventoOut"][];
+        };
+        /** PartidaOut */
+        PartidaOut: {
+            /** Id */
+            id: number;
+            campeonato: components["schemas"]["CampeonatoResumo"];
+            /** Rodada */
+            rodada: number;
+            /** Data Hora */
+            data_hora: string | null;
+            /** Local */
+            local: string | null;
+            status: components["schemas"]["StatusPartida"];
+            mandante: components["schemas"]["EquipeResumo"];
+            visitante: components["schemas"]["EquipeResumo"];
+            arbitro: components["schemas"]["ArbitroResumo"] | null;
+            /**
+             * Gols Mandante
+             * @description Calculado a partir dos eventos de gol
+             */
+            gols_mandante: number;
+            /** Gols Visitante */
+            gols_visitante: number;
+        };
+        /**
+         * PartidaUpdate
+         * @description PATCH: tudo opcional. As regras que dependem do banco (inscrição, eventos) ficam no service.
+         */
+        PartidaUpdate: {
+            /** Rodada */
+            rodada?: number | null;
+            /** Mandante Id */
+            mandante_id?: number | null;
+            /** Visitante Id */
+            visitante_id?: number | null;
+            /** Data Hora */
+            data_hora?: string | null;
+            /** Local */
+            local?: string | null;
+            /** Arbitro Id */
+            arbitro_id?: number | null;
+            status?: components["schemas"]["StatusPartida"] | null;
+        };
+        /**
+         * PessoaResumo
+         * @description Só id e nome (ex.: o autor de um gol).
+         */
+        PessoaResumo: {
+            /** Id */
+            id: number;
+            /** Nome */
+            nome: string;
         };
         /**
          * Posicao
@@ -851,6 +1277,8 @@ export interface components {
             federacoes: number;
             /** Campeonatos */
             campeonatos: number;
+            /** Partidas */
+            partidas: number;
             /** Equipes */
             equipes: number;
             /** Jogadores */
@@ -860,6 +1288,11 @@ export interface components {
             /** Arbitros */
             arbitros: number;
         };
+        /**
+         * StatusPartida
+         * @enum {string}
+         */
+        StatusPartida: "AGENDADA" | "EM_ANDAMENTO" | "ENCERRADA";
         /** TecnicoCreate */
         TecnicoCreate: {
             /**
@@ -871,8 +1304,12 @@ export interface components {
             nome: string;
             /** Nacionalidade */
             nacionalidade: string;
-            /** Idade */
-            idade: number;
+            /**
+             * Data Nascimento
+             * Format: date
+             * @description Idade entre 18 e 100 anos
+             */
+            data_nascimento: string;
         };
         /** TecnicoOut */
         TecnicoOut: {
@@ -880,12 +1317,20 @@ export interface components {
             id: number;
             /** Cpf */
             cpf: string;
+            /**
+             * Data Nascimento
+             * Format: date
+             */
+            data_nascimento: string;
+            /**
+             * Idade
+             * @description Calculada a partir da data de nascimento
+             */
+            idade: number;
             /** Nome */
             nome: string;
             /** Nacionalidade */
             nacionalidade: string;
-            /** Idade */
-            idade: number;
             equipe: components["schemas"]["EquipeResumo"] | null;
         };
         /** TecnicoResumo */
@@ -905,9 +1350,14 @@ export interface components {
             nome?: string | null;
             /** Nacionalidade */
             nacionalidade?: string | null;
-            /** Idade */
-            idade?: number | null;
+            /** Data Nascimento */
+            data_nascimento?: string | null;
         };
+        /**
+         * TipoEvento
+         * @enum {string}
+         */
+        TipoEvento: "GOL" | "GOL_CONTRA" | "CARTAO_AMARELO" | "CARTAO_VERMELHO";
         /** ValidationError */
         ValidationError: {
             /** Location */
@@ -1387,6 +1837,68 @@ export interface operations {
             };
         };
     };
+    classificacao_campeonatos__campeonato_id__classificacao_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                campeonato_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LinhaClassificacao"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    artilheiros_campeonatos__campeonato_id__artilheiros_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                campeonato_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Artilheiro"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     inscrever_equipe_campeonatos__campeonato_id__equipes__equipe_id__put: {
         parameters: {
             query?: never;
@@ -1438,6 +1950,239 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CampeonatoOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listar_partidas_partidas_get: {
+        parameters: {
+            query?: {
+                campeonato_id?: number | null;
+                equipe_id?: number | null;
+                rodada?: number | null;
+                status?: components["schemas"]["StatusPartida"] | null;
+                /** @description Quantos registros pular */
+                skip?: number;
+                /** @description Máximo de registros por página */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Pagina_PartidaOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    criar_partida_partidas_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PartidaCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartidaDetalhe"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    obter_partida_partidas__partida_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                partida_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartidaDetalhe"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remover_partida_partidas__partida_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                partida_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    atualizar_partida_partidas__partida_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                partida_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PartidaUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartidaDetalhe"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    adicionar_evento_partidas__partida_id__eventos_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                partida_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EventoCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartidaDetalhe"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remover_evento_partidas__partida_id__eventos__evento_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                partida_id: number;
+                evento_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartidaDetalhe"];
                 };
             };
             /** @description Validation Error */
@@ -1627,7 +2372,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ContratoJogadorCreate"] | null;
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {
@@ -1691,7 +2440,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ContratoTecnicoCreate"] | null;
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {
@@ -1910,6 +2663,37 @@ export interface operations {
             };
         };
     };
+    contratos_do_jogador_jogadores__jogador_id__contratos_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                jogador_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContratoJogadorOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     listar_tecnicos_tecnicos_get: {
         parameters: {
             query?: {
@@ -2061,6 +2845,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TecnicoOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    contratos_do_tecnico_tecnicos__tecnico_id__contratos_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tecnico_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContratoTecnicoOut"][];
                 };
             };
             /** @description Validation Error */

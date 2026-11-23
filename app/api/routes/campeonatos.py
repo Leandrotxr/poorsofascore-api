@@ -1,8 +1,9 @@
 from fastapi import APIRouter, status
 
 from app.api.deps import DbSession, Limit, Skip
-from app.schemas import CampeonatoCreate, CampeonatoOut, CampeonatoUpdate, Pagina
+from app.schemas import Artilheiro, CampeonatoCreate, CampeonatoOut, CampeonatoUpdate, LinhaClassificacao, Pagina
 from app.services import campeonatos as service
+from app.services import estatisticas
 
 router = APIRouter(prefix="/campeonatos", tags=["Campeonatos"])
 
@@ -23,6 +24,19 @@ def listar_campeonatos(
 def obter_campeonato(campeonato_id: int, db: DbSession):
     """Retorna o campeonato com a federação organizadora e as equipes participantes."""
     return service.obter(db, campeonato_id)
+
+
+@router.get("/{campeonato_id}/classificacao", response_model=list[LinhaClassificacao])
+def classificacao(campeonato_id: int, db: DbSession):
+    """Tabela com todas as equipes inscritas. Só partidas ENCERRADAS contam.
+    Desempate: pontos, vitórias, saldo, gols pró."""
+    return estatisticas.classificacao(db, campeonato_id)
+
+
+@router.get("/{campeonato_id}/artilheiros", response_model=list[Artilheiro])
+def artilheiros(campeonato_id: int, db: DbSession):
+    """Os 20 maiores goleadores (gols contra não contam)."""
+    return estatisticas.artilheiros(db, campeonato_id)
 
 
 @router.post("", response_model=CampeonatoOut, status_code=status.HTTP_201_CREATED)

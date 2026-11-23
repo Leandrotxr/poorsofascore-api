@@ -3,9 +3,9 @@ import { api, consultas, mensagemDe } from '../api'
 import { Adicionar } from '../components/Busca'
 import { AcoesGaveta, BotaoRemover, Gaveta, GavetaEstado, Linha, LinkEntidade, SecaoGaveta, VazioPequeno } from '../components/Gaveta'
 import { Avatar, Etiqueta, PosBadge, Rotulo } from '../components/ui'
-import { FUNCAO, nomeTomDe, VISUAL } from '../estilo'
+import { formatarDataCurta, FUNCAO, nomeTomDe, plural, VISUAL } from '../estilo'
 import { useAcao, useIdRota, useNavegarNaAba } from '../hooks'
-import type { Arbitro, Jogador, Tecnico } from '../types'
+import type { Arbitro, ContratoJogador, ContratoTecnico, Jogador, Tecnico } from '../types'
 
 // Jogador, técnico e árbitro têm o mesmo painel: dados pessoais + o vínculo (equipe ou federação).
 
@@ -67,16 +67,28 @@ function PainelPessoa(props: Props) {
     >
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-2xl bg-fundo px-3 py-2.5">
+          <Rotulo>Nascimento</Rotulo>
+          <p className="mt-0.5 text-sm font-semibold">{formatarDataCurta(p.data_nascimento)}</p>
+        </div>
+        <div className="rounded-2xl bg-fundo px-3 py-2.5">
           <Rotulo>CPF</Rotulo>
           <p className="mt-0.5 font-mono text-xs text-slate-600">{p.cpf}</p>
         </div>
         {props.tipo === 'jogador' && props.pessoa && (
-          <div className="rounded-2xl bg-fundo px-3 py-2.5">
-            <Rotulo>Posição</Rotulo>
-            <div className="mt-1">
-              <PosBadge posicao={props.pessoa.posicao} />
+          <>
+            <div className="rounded-2xl bg-fundo px-3 py-2.5">
+              <Rotulo>Posição</Rotulo>
+              <div className="mt-1">
+                <PosBadge posicao={props.pessoa.posicao} />
+              </div>
             </div>
-          </div>
+            <div className="rounded-2xl bg-fundo px-3 py-2.5">
+              <Rotulo>Camisa</Rotulo>
+              <p className="mt-0.5 text-sm font-semibold">
+                {props.pessoa.numero_camisa ?? <span className="font-normal text-slate-400">–</span>}
+              </p>
+            </div>
+          </>
         )}
         {props.tipo === 'arbitro' && props.pessoa && (
           <div className="rounded-2xl bg-fundo px-3 py-2.5">
@@ -93,6 +105,8 @@ function PainelPessoa(props: Props) {
       ) : (
         <VinculoEquipe pessoa={p as Jogador | Tecnico} tecnico={props.tipo === 'tecnico'} executar={executar} ocupado={ocupado} />
       )}
+      {props.tipo === 'jogador' && <HistoricoJogador id={p.id} />}
+      {props.tipo === 'tecnico' && <HistoricoTecnico id={p.id} />}
     </Gaveta>
   )
 }
@@ -201,6 +215,45 @@ function VinculoFederacao({ arbitro, executar, ocupado }: { arbitro: Arbitro } &
             }
           />
         </>
+      )}
+    </SecaoGaveta>
+  )
+}
+
+// ---------- Histórico de contratos ----------
+
+function HistoricoJogador({ id }: { id: number }) {
+  const { data } = useQuery(consultas.contratosJogador(id))
+  return <Historico contratos={data} />
+}
+
+function HistoricoTecnico({ id }: { id: number }) {
+  const { data } = useQuery(consultas.contratosTecnico(id))
+  return <Historico contratos={data} />
+}
+
+function Historico({ contratos }: { contratos: (ContratoJogador | ContratoTecnico)[] | undefined }) {
+  if (!contratos) return null
+  return (
+    <SecaoGaveta titulo="Histórico" extra={plural(contratos.length, 'passagem', 'passagens')}>
+      {contratos.length === 0 ? (
+        <VazioPequeno>Nenhum contrato registrado.</VazioPequeno>
+      ) : (
+        <ol className="relative mt-3 space-y-3 border-l-2 border-borda pl-5">
+          {contratos.map((c) => (
+            <li key={c.id} className="relative">
+              <span
+                className={`absolute top-1.5 -left-[27px] size-3 rounded-full ring-4 ring-white ${c.fim ? 'bg-slate-300' : 'bg-menta-forte'}`}
+                aria-hidden="true"
+              />
+              <LinkEntidade para={`/equipes/${c.equipe.id}`}>{c.equipe.nome}</LinkEntidade>
+              <p className="text-xs text-slate-500">
+                {formatarDataCurta(c.inicio)} – {c.fim ? formatarDataCurta(c.fim) : 'atual'}
+                {'numero_camisa' in c && c.numero_camisa ? ` · camisa ${c.numero_camisa}` : ''}
+              </p>
+            </li>
+          ))}
+        </ol>
       )}
     </SecaoGaveta>
   )

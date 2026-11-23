@@ -1,7 +1,15 @@
 from fastapi import APIRouter, status
 
 from app.api.deps import DbSession, Limit, Skip
-from app.schemas import EquipeCreate, EquipeDetalhe, EquipeOut, EquipeUpdate, Pagina
+from app.schemas import (
+    ContratoJogadorCreate,
+    ContratoTecnicoCreate,
+    EquipeCreate,
+    EquipeDetalhe,
+    EquipeOut,
+    EquipeUpdate,
+    Pagina,
+)
 from app.services import equipes as service
 
 router = APIRouter(prefix="/equipes", tags=["Equipes"])
@@ -54,12 +62,14 @@ def remover_equipe(equipe_id: int, db: DbSession):
 
 
 @router.put("/{equipe_id}/jogadores/{jogador_id}", response_model=EquipeDetalhe)
-def contratar_jogador(equipe_id: int, jogador_id: int, db: DbSession):
-    return service.contratar_jogador(db, equipe_id, jogador_id)
+def contratar_jogador(equipe_id: int, jogador_id: int, db: DbSession, dados: ContratoJogadorCreate | None = None):
+    """Abre um contrato (corpo opcional: `inicio` e `numero_camisa`). O jogador precisa estar livre."""
+    return service.contratar_jogador(db, equipe_id, jogador_id, dados)
 
 
 @router.delete("/{equipe_id}/jogadores/{jogador_id}", response_model=EquipeDetalhe)
 def dispensar_jogador(equipe_id: int, jogador_id: int, db: DbSession):
+    """Encerra o contrato atual (fica no histórico do jogador)."""
     return service.dispensar_jogador(db, equipe_id, jogador_id)
 
 
@@ -67,9 +77,9 @@ def dispensar_jogador(equipe_id: int, jogador_id: int, db: DbSession):
 
 
 @router.put("/{equipe_id}/tecnico/{tecnico_id}", response_model=EquipeDetalhe)
-def definir_tecnico(equipe_id: int, tecnico_id: int, db: DbSession):
-    """Define o técnico. Se a equipe já tiver um, ele é substituído."""
-    return service.definir_tecnico(db, equipe_id, tecnico_id)
+def definir_tecnico(equipe_id: int, tecnico_id: int, db: DbSession, dados: ContratoTecnicoCreate | None = None):
+    """Define o técnico (corpo opcional: `inicio`). Se a equipe já tiver um, o contrato dele é encerrado."""
+    return service.definir_tecnico(db, equipe_id, tecnico_id, dados)
 
 
 @router.delete("/{equipe_id}/tecnico", response_model=EquipeDetalhe)

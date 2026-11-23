@@ -74,6 +74,7 @@ def test_resumo(client, nova_federacao, nova_equipe, novo_jogador, novo_campeona
     assert client.get("/resumo").json() == {
         "federacoes": 0,
         "campeonatos": 0,
+        "partidas": 0,
         "equipes": 0,
         "jogadores": 0,
         "tecnicos": 0,

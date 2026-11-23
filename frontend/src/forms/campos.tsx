@@ -8,6 +8,7 @@ import { VISUAL } from '../estilo'
 const TITULOS: Record<NomeRecurso, { novo: string; editar: string }> = {
   federacoes: { novo: 'Nova federação', editar: 'Editar federação' },
   campeonatos: { novo: 'Novo campeonato', editar: 'Editar campeonato' },
+  partidas: { novo: 'Nova partida', editar: 'Editar partida' },
   equipes: { novo: 'Nova equipe', editar: 'Editar equipe' },
   jogadores: { novo: 'Novo jogador', editar: 'Editar jogador' },
   tecnicos: { novo: 'Novo técnico', editar: 'Editar técnico' },

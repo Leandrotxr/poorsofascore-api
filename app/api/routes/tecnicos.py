@@ -1,7 +1,8 @@
 from fastapi import APIRouter, status
 
 from app.api.deps import DbSession, Limit, Skip
-from app.schemas import Pagina, TecnicoCreate, TecnicoOut, TecnicoUpdate
+from app.schemas import ContratoTecnicoOut, Pagina, TecnicoCreate, TecnicoOut, TecnicoUpdate
+from app.services import contratos
 from app.services import tecnicos as service
 
 router = APIRouter(prefix="/tecnicos", tags=["Técnicos"])
@@ -17,6 +18,12 @@ def listar_tecnicos(
 @router.get("/{tecnico_id}", response_model=TecnicoOut)
 def obter_tecnico(tecnico_id: int, db: DbSession):
     return service.obter(db, tecnico_id)
+
+
+@router.get("/{tecnico_id}/contratos", response_model=list[ContratoTecnicoOut])
+def contratos_do_tecnico(tecnico_id: int, db: DbSession):
+    """Histórico de equipes comandadas, do mais recente para o mais antigo."""
+    return contratos.contratos_do_tecnico(db, tecnico_id)
 
 
 @router.post("", response_model=TecnicoOut, status_code=status.HTTP_201_CREATED)

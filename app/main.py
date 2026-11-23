@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
 from app.api.deps import DbSession
-from app.api.routes import arbitros, campeonatos, equipes, federacoes, jogadores, resumo, tecnicos
+from app.api.routes import arbitros, campeonatos, equipes, federacoes, jogadores, partidas, resumo, tecnicos
 from app.core.config import get_settings
 from app.core.exceptions import register_exception_handlers
 
@@ -27,6 +27,7 @@ register_exception_handlers(app)
 
 app.include_router(federacoes.router)
 app.include_router(campeonatos.router)
+app.include_router(partidas.router)
 app.include_router(equipes.router)
 app.include_router(jogadores.router)
 app.include_router(tecnicos.router)

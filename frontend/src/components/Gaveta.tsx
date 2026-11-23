@@ -68,6 +68,7 @@ export function Gaveta({
   subtitulo,
   acoes,
   onFechar,
+  larga = false,
   children,
 }: {
   tom: Tom
@@ -76,6 +77,8 @@ export function Gaveta({
   subtitulo?: ReactNode
   acoes?: ReactNode
   onFechar: () => void
+  /** Mais espaço para tabelas (ex.: classificação do campeonato) */
+  larga?: boolean
   children: ReactNode
 }) {
   const ref = useRef<HTMLElement>(null)
@@ -91,7 +94,7 @@ export function Gaveta({
         role="dialog"
         aria-modal="true"
         aria-label={titulo}
-        className="relative h-full w-full max-w-md animate-slide-in overflow-y-auto bg-white shadow-2xl shadow-black/10 outline-none"
+        className={`relative h-full w-full ${larga ? 'max-w-2xl' : 'max-w-md'} animate-slide-in overflow-y-auto bg-white shadow-2xl shadow-black/10 outline-none`}
       >
         <header className={`relative ${t.fundo} px-6 pt-6 pb-7`}>
           <div className="absolute top-4 right-4 flex items-center gap-1.5">

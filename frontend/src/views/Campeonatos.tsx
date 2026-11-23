@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { Link } from 'react-router'
 import { api, consultas, mensagemDe } from '../api'
 import { Adicionar } from '../components/Busca'
 import {
@@ -14,6 +15,7 @@ import {
 } from '../components/Gaveta'
 import { Icone } from '../components/Icone'
 import { CardLink, Grade, ListaPaginada } from '../components/Lista'
+import { LinhaPartida } from '../components/Partida'
 import { Avatar, CampoBusca, Etiqueta, Rotulo } from '../components/ui'
 import { FORMATO, formatarPeriodo, nomeTomDe, plural } from '../estilo'
 import { useAcao, useFiltrosUrl, useIdRota, useNavegarNaAba } from '../hooks'
@@ -126,6 +128,7 @@ export function CampeonatoPainel() {
   return (
     <Gaveta
       tom="menta"
+      larga
       icone={
         <IconeGaveta>
           <Icone nome="trofeu" className="size-7" />
@@ -158,6 +161,10 @@ export function CampeonatoPainel() {
           </div>
         </div>
       </div>
+
+      <Classificacao campeonatoId={campeonato.id} />
+      <Artilharia campeonatoId={campeonato.id} />
+      <PartidasDoCampeonato campeonatoId={campeonato.id} />
 
       <SecaoGaveta titulo="Equipes participantes" extra={plural(campeonato.equipes.length, 'equipe', 'equipes')}>
         {campeonato.equipes.length === 0 ? (
@@ -201,5 +208,129 @@ export function CampeonatoPainel() {
         />
       </SecaoGaveta>
     </Gaveta>
+  )
+}
+
+function Classificacao({ campeonatoId }: { campeonatoId: number }) {
+  const { data: tabela, error } = useQuery(consultas.classificacao(campeonatoId))
+  const colunas = [
+    ['P', 'Pontos'],
+    ['J', 'Jogos'],
+    ['V', 'Vitórias'],
+    ['E', 'Empates'],
+    ['D', 'Derrotas'],
+    ['SG', 'Saldo de gols'],
+    ['%', 'Aproveitamento'],
+  ] as const
+
+  return (
+    <SecaoGaveta titulo="Classificação" extra="só partidas encerradas">
+      {error ? (
+        <VazioPequeno>Não foi possível carregar: {mensagemDe(error)}</VazioPequeno>
+      ) : !tabela ? (
+        <div className="mt-2 h-32 animate-pulse rounded-2xl bg-borda/60" />
+      ) : tabela.length === 0 ? (
+        <VazioPequeno>Inscreva equipes para montar a tabela.</VazioPequeno>
+      ) : (
+        <div className="mt-2 overflow-x-auto rounded-2xl border border-borda">
+          <table className="w-full text-sm">
+            <thead className="bg-fundo/60 text-[11px] tracking-wider text-slate-400 uppercase">
+              <tr>
+                <th className="px-3 py-2 text-left font-semibold" colSpan={2}>
+                  Equipe
+                </th>
+                {colunas.map(([sigla, nome]) => (
+                  <th key={sigla} className="px-2 py-2 text-right font-semibold">
+                    <abbr title={nome} className="no-underline">
+                      {sigla}
+                    </abbr>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-borda">
+              {tabela.map((t) => (
+                <tr key={t.equipe.id}>
+                  <td className="w-8 py-2 pl-3 font-mono text-xs text-slate-400">{t.posicao}</td>
+                  <td className="max-w-40 truncate py-2 pr-2 font-semibold">
+                    <Link to={`/equipes/${t.equipe.id}`} className="hover:underline">
+                      {t.equipe.nome}
+                    </Link>
+                  </td>
+                  <td className="px-2 py-2 text-right font-extrabold">{t.pontos}</td>
+                  {[t.jogos, t.vitorias, t.empates, t.derrotas].map((n, i) => (
+                    <td key={i} className="px-2 py-2 text-right text-slate-600 tabular-nums">
+                      {n}
+                    </td>
+                  ))}
+                  <td className="px-2 py-2 text-right text-slate-600 tabular-nums">
+                    {t.saldo > 0 ? `+${t.saldo}` : t.saldo}
+                  </td>
+                  <td className="px-2 py-2 pr-3 text-right text-slate-400 tabular-nums">{Math.round(t.aproveitamento)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </SecaoGaveta>
+  )
+}
+
+function Artilharia({ campeonatoId }: { campeonatoId: number }) {
+  const { data } = useQuery(consultas.artilheiros(campeonatoId))
+  if (!data) return null
+  return (
+    <SecaoGaveta titulo="Artilharia">
+      {data.length === 0 ? (
+        <VazioPequeno>Nenhum gol marcado ainda.</VazioPequeno>
+      ) : (
+        <ol className="mt-2 space-y-1">
+          {data.slice(0, 5).map((a, i) => (
+            <Linha key={`${a.jogador.id}-${a.equipe.id}`}>
+              <span className="w-5 font-mono text-xs text-slate-400">{i + 1}</span>
+              <Avatar nome={a.jogador.nome} seed={a.jogador.id} tamanho="sm" />
+              <div className="min-w-0 flex-1">
+                <LinkEntidade para={`/jogadores/${a.jogador.id}`}>{a.jogador.nome}</LinkEntidade>
+                <p className="text-xs text-slate-500">{a.equipe.nome}</p>
+              </div>
+              <span className="text-lg font-extrabold">{a.gols}</span>
+              <span className="text-xs text-slate-400">{a.gols === 1 ? 'gol' : 'gols'}</span>
+            </Linha>
+          ))}
+        </ol>
+      )}
+    </SecaoGaveta>
+  )
+}
+
+function PartidasDoCampeonato({ campeonatoId }: { campeonatoId: number }) {
+  const { data } = useQuery(consultas.partidas({ campeonato_id: campeonatoId, limit: 10 }))
+  const total = data?.total ?? 0
+  return (
+    <SecaoGaveta titulo="Partidas" extra={plural(total, 'partida', 'partidas')}>
+      {data && data.items.length === 0 && <VazioPequeno>Nenhuma partida agendada.</VazioPequeno>}
+      <div className="mt-2 space-y-2">
+        {data?.items.map((p) => (
+          <LinhaPartida key={p.id} partida={p} />
+        ))}
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Link
+          to={`/partidas/novo?campeonato_id=${campeonatoId}`}
+          className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-slate-300 px-3.5 py-1.5 text-sm font-semibold text-slate-600 transition hover:border-tinta hover:bg-fundo hover:text-tinta"
+        >
+          <Icone nome="mais" /> Nova partida
+        </Link>
+        {total > 10 && (
+          <Link
+            to={`/partidas?campeonato_id=${campeonatoId}`}
+            className="inline-flex items-center rounded-full px-3.5 py-1.5 text-sm font-semibold text-slate-500 hover:text-tinta"
+          >
+            Ver todas →
+          </Link>
+        )}
+      </div>
+    </SecaoGaveta>
   )
 }

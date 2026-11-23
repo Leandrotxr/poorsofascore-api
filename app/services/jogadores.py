@@ -1,5 +1,5 @@
 from sqlalchemy import select
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, joinedload, selectinload
 
 from app.core.exceptions import ConflictError
 from app.models import Jogador, Posicao
@@ -26,7 +26,14 @@ def listar(
         stmt = stmt.where(Jogador.equipe_id == equipe_id)
     if sem_equipe:
         stmt = stmt.where(Jogador.equipe_id.is_(None))
-    return paginar(db, stmt, skip=skip, limit=limit, ordem=[Jogador.nome], opcoes=[joinedload(Jogador.equipe)])
+    return paginar(
+        db,
+        stmt,
+        skip=skip,
+        limit=limit,
+        ordem=[Jogador.nome],
+        opcoes=[joinedload(Jogador.equipe), selectinload(Jogador.contrato_atual)],
+    )
 
 
 def obter(db: Session, jogador_id: int) -> Jogador:

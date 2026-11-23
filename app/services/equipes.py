@@ -2,13 +2,14 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload, selectinload
 
 from app.core.exceptions import BusinessRuleError, ConflictError, NotFoundError
-from app.models import Equipe, Jogador, Tecnico
-from app.schemas import EquipeCreate, EquipeUpdate
+from app.models import Equipe, Jogador, Partida, Tecnico
+from app.schemas import ContratoJogadorCreate, ContratoTecnicoCreate, EquipeCreate, EquipeUpdate
+from app.services import contratos
 from app.services.common import Pagina, aplicar_parcial, commit, obter_ou_404, paginar
 
 _COM_RELACOES = (
     joinedload(Equipe.federacao),
-    selectinload(Equipe.jogadores),
+    selectinload(Equipe.jogadores).selectinload(Jogador.contrato_atual),  # número da camisa
     selectinload(Equipe.tecnico),
     selectinload(Equipe.campeonatos),
 )
@@ -72,6 +73,11 @@ def atualizar(db: Session, equipe_id: int, dados: EquipeUpdate) -> Equipe:
 
 def remover(db: Session, equipe_id: int) -> None:
     equipe = obter_ou_404(db, Equipe, equipe_id, "Equipe")
+    jogou = db.scalar(
+        select(Partida.id).where((Partida.mandante_id == equipe_id) | (Partida.visitante_id == equipe_id)).limit(1)
+    )
+    if jogou:
+        raise ConflictError("A equipe tem partidas registradas; apague as partidas antes de excluí-la")
     db.delete(equipe)  # jogadores e técnico ficam sem equipe (ON DELETE SET NULL)
     commit(db)
 
@@ -79,15 +85,19 @@ def remover(db: Session, equipe_id: int) -> None:
 # ---------- Relação 1:N  Equipe -> Jogadores ----------
 
 
-def contratar_jogador(db: Session, equipe_id: int, jogador_id: int) -> Equipe:
+def contratar_jogador(
+    db: Session, equipe_id: int, jogador_id: int, dados: ContratoJogadorCreate | None = None
+) -> Equipe:
     equipe = obter_ou_404(db, Equipe, equipe_id, "Equipe")
     jogador = obter_ou_404(db, Jogador, jogador_id, "Jogador")
     if jogador.equipe_id == equipe.id:
         raise BusinessRuleError("Jogador já pertence a esta equipe")
     if jogador.equipe_id is not None:
         raise ConflictError("Jogador tem contrato com outra equipe; dispense-o primeiro")
-    jogador.equipe = equipe
-    commit(db)
+    dados = dados or ContratoJogadorCreate()
+    contratos.abrir_contrato_jogador(db, jogador, equipe, dados.inicio, dados.numero_camisa)
+    commit(db, "Jogador já tem contrato ativo ou a camisa já está em uso")
+    db.expire_all()
     return obter_detalhe(db, equipe_id)
 
 
@@ -96,15 +106,16 @@ def dispensar_jogador(db: Session, equipe_id: int, jogador_id: int) -> Equipe:
     jogador = obter_ou_404(db, Jogador, jogador_id, "Jogador")
     if jogador.equipe_id != equipe_id:
         raise BusinessRuleError("Jogador não pertence a esta equipe")
-    jogador.equipe = None
+    contratos.encerrar_contrato_jogador(db, jogador)
     commit(db)
+    db.expire_all()
     return obter_detalhe(db, equipe_id)
 
 
 # ---------- Relação 1:1  Equipe -> Técnico ----------
 
 
-def definir_tecnico(db: Session, equipe_id: int, tecnico_id: int) -> Equipe:
+def definir_tecnico(db: Session, equipe_id: int, tecnico_id: int, dados: ContratoTecnicoCreate | None = None) -> Equipe:
     equipe = obter_detalhe(db, equipe_id)
     tecnico = obter_ou_404(db, Tecnico, tecnico_id, "Técnico")
 
@@ -115,10 +126,10 @@ def definir_tecnico(db: Session, equipe_id: int, tecnico_id: int) -> Equipe:
 
     # Se a equipe já tem técnico, ele é desligado ANTES (flush) para não violar o UNIQUE.
     if equipe.tecnico is not None:
-        equipe.tecnico.equipe = None
+        contratos.encerrar_contrato_tecnico(db, equipe.tecnico)
         db.flush()
 
-    tecnico.equipe = equipe
+    contratos.abrir_contrato_tecnico(db, tecnico, equipe, (dados or ContratoTecnicoCreate()).inicio)
     commit(db, "Equipe já possui técnico")
     db.expire_all()
     return obter_detalhe(db, equipe_id)
@@ -128,7 +139,7 @@ def remover_tecnico(db: Session, equipe_id: int) -> Equipe:
     equipe = obter_detalhe(db, equipe_id)
     if equipe.tecnico is None:
         raise BusinessRuleError("Equipe não possui técnico")
-    equipe.tecnico.equipe = None
+    contratos.encerrar_contrato_tecnico(db, equipe.tecnico)
     commit(db)
     db.expire_all()
     return obter_detalhe(db, equipe_id)
