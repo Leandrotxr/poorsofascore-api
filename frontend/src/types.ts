@@ -10,16 +10,22 @@ export type Posicao = S['Posicao']
 export type FuncaoArbitro = S['FuncaoArbitro']
 export type Abrangencia = S['Abrangencia']
 export type FormatoCampeonato = S['FormatoCampeonato']
+export type StatusPartida = S['StatusPartida']
+export type TipoEvento = S['TipoEvento']
 
 // `satisfies` garante que as listas só têm valores que existem no enum da API.
 export const POSICOES = ['GOLEIRO', 'ZAGUEIRO', 'LATERAL', 'VOLANTE', 'MEIA', 'ATACANTE'] as const satisfies readonly Posicao[]
 export const FUNCOES = ['CENTRAL', 'ASSISTENTE', 'VAR'] as const satisfies readonly FuncaoArbitro[]
 export const ABRANGENCIAS = ['MUNDIAL', 'CONTINENTAL', 'NACIONAL', 'ESTADUAL'] as const satisfies readonly Abrangencia[]
 export const FORMATOS = ['PONTOS_CORRIDOS', 'MATA_MATA', 'GRUPOS_E_MATA_MATA'] as const satisfies readonly FormatoCampeonato[]
+export const STATUS_PARTIDA = ['AGENDADA', 'EM_ANDAMENTO', 'ENCERRADA'] as const satisfies readonly StatusPartida[]
+export const TIPOS_EVENTO = ['GOL', 'GOL_CONTRA', 'CARTAO_AMARELO', 'CARTAO_VERMELHO'] as const satisfies readonly TipoEvento[]
 
 export type EquipeResumo = S['EquipeResumo']
 export type FederacaoResumo = S['FederacaoResumo']
 export type JogadorResumo = S['JogadorResumo']
+export type ArbitroResumo = S['ArbitroResumo']
+export type CampeonatoResumo = S['CampeonatoResumo']
 
 export type Federacao = S['FederacaoDetalhe']
 export type Equipe = S['EquipeDetalhe']
@@ -28,6 +34,13 @@ export type Jogador = S['JogadorOut']
 export type Tecnico = S['TecnicoOut']
 export type Arbitro = S['ArbitroOut']
 export type Resumo = S['Resumo']
+export type Partida = S['PartidaOut']
+export type PartidaDetalhe = S['PartidaDetalhe']
+export type Evento = S['EventoOut']
+export type LinhaClassificacao = S['LinhaClassificacao']
+export type Artilheiro = S['Artilheiro']
+export type ContratoJogador = S['ContratoJogadorOut']
+export type ContratoTecnico = S['ContratoTecnicoOut']
 
 export interface Pagina<T> {
   items: T[]
@@ -43,6 +56,9 @@ export type NovoCampeonato = S['CampeonatoCreate']
 export type NovoJogador = S['JogadorCreate']
 export type NovoTecnico = S['TecnicoCreate']
 export type NovoArbitro = S['ArbitroCreate']
+export type NovaPartida = S['PartidaCreate']
+export type NovoEvento = S['EventoCreate']
+export type NovoContratoJogador = S['ContratoJogadorCreate']
 
 export type EdicaoFederacao = S['FederacaoUpdate']
 export type EdicaoEquipe = S['EquipeUpdate']
@@ -50,6 +66,7 @@ export type EdicaoCampeonato = S['CampeonatoUpdate']
 export type EdicaoJogador = S['JogadorUpdate']
 export type EdicaoTecnico = S['TecnicoUpdate']
 export type EdicaoArbitro = S['ArbitroUpdate']
+export type EdicaoPartida = S['PartidaUpdate']
 
 // Filtros das listagens (query string)
 export type FiltrosFederacoes = Query<'listar_federacoes_federacoes_get'>
@@ -58,3 +75,4 @@ export type FiltrosEquipes = Query<'listar_equipes_equipes_get'>
 export type FiltrosJogadores = Query<'listar_jogadores_jogadores_get'>
 export type FiltrosTecnicos = Query<'listar_tecnicos_tecnicos_get'>
 export type FiltrosArbitros = Query<'listar_arbitros_arbitros_get'>
+export type FiltrosPartidas = Query<'listar_partidas_partidas_get'>

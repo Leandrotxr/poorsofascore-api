@@ -8,6 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base, TimestampMixin
 
 if TYPE_CHECKING:
+    from app.models.competicao.partida import Partida
     from app.models.pessoa_juridica.equipe import Equipe
     from app.models.pessoa_juridica.federacao import Federacao
 
@@ -57,4 +58,12 @@ class Campeonato(TimestampMixin, Base):
     # N:N -> equipes participantes
     equipes: Mapped[list["Equipe"]] = relationship(
         secondary=campeonato_equipe, back_populates="campeonatos", order_by="Equipe.nome"
+    )
+
+    # 1:N -> partidas do campeonato (apagar o campeonato apaga as partidas)
+    partidas: Mapped[list["Partida"]] = relationship(
+        back_populates="campeonato",
+        order_by="Partida.rodada, Partida.data_hora, Partida.id",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )

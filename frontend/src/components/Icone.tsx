@@ -85,6 +85,13 @@ const ICONES = {
       <path d="M10 11v6M14 11v6" />
     </>
   ),
+  bola: (
+    <>
+      <circle cx="12" cy="12" r="10" />
+      <path d="m12 7 4.5 3.3-1.7 5.2H9.2l-1.7-5.2Z" />
+      <path d="M12 7V2M16.5 10.3l4.7-1.5M14.8 15.5l2.9 4M9.2 15.5l-2.9 4M7.5 10.3 2.8 8.8" />
+    </>
+  ),
   esquerda: <path d="m15 18-6-6 6-6" />,
   direita: <path d="m9 18 6-6-6-6" />,
   cartao: <rect x="6" y="3" width="12" height="18" rx="2" transform="rotate(12 12 12)" />,

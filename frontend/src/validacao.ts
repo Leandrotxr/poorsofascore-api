@@ -52,3 +52,20 @@ export function mascaraCnpj(valor: string): string {
     .replace(/\.(\d{3})(\d)/, '.$1/$2')
     .replace(/(\d{4})(\d{1,2})$/, '$1-$2')
 }
+
+/** Idade completa em anos a partir de "AAAA-MM-DD" (mesma regra da API: app/core/datas.py). */
+export function calcularIdade(nascimentoIso: string, hoje = new Date()): number {
+  const [a, m, d] = nascimentoIso.split('-').map(Number)
+  const fezAniversario = hoje.getMonth() + 1 > m || (hoje.getMonth() + 1 === m && hoje.getDate() >= d)
+  return hoje.getFullYear() - a - (fezAniversario ? 0 : 1)
+}
+
+/** Confere a data de nascimento: vazia, no futuro ou fora da faixa de idade do papel. */
+export function erroNascimento(nascimentoIso: string, faixa: { min: number; max: number }): string | null {
+  if (!nascimentoIso) return 'Campo obrigatório'
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(nascimentoIso)) return 'Data inválida'
+  const idade = calcularIdade(nascimentoIso)
+  if (idade < 0) return 'Não pode estar no futuro'
+  if (idade < faixa.min || idade > faixa.max) return `Idade deve estar entre ${faixa.min} e ${faixa.max} anos (hoje: ${idade})`
+  return null
+}

@@ -5,13 +5,12 @@ import { SelecaoRemota } from '../components/Busca'
 import { FUNCAO, POS } from '../estilo'
 import { useIdRota, useNavegarNaAba } from '../hooks'
 import { FUNCOES, POSICOES, type FuncaoArbitro, type Posicao } from '../types'
-import { digitos, LIMITES, mascaraCpf, validarCpf } from '../validacao'
+import { calcularIdade, digitos, erroNascimento, LIMITES, mascaraCpf, validarCpf } from '../validacao'
 import { Campo, Formulario, GavetaFormulario, Selecao, Texto } from './campos'
 import {
   buscarEquipes,
   buscarFederacoes,
   exigir,
-  exigirFaixa,
   opcoesDe,
   rotuloFederacao,
   useEnvio,
@@ -41,7 +40,7 @@ interface PessoaInicial {
   id: number
   nome: string
   cpf: string // já vem mascarado da API
-  idade: number
+  data_nascimento: string
   nacionalidade: string
   posicao?: Posicao
   funcao?: FuncaoArbitro
@@ -90,7 +89,7 @@ function Campos({ tipo, inicial, onCancelar }: { tipo: Tipo; inicial?: PessoaIni
   const [f, setF] = useState({
     nome: inicial?.nome ?? '',
     cpf: inicial?.cpf ?? '',
-    idade: inicial ? String(inicial.idade) : '',
+    data_nascimento: inicial?.data_nascimento ?? '',
     nacionalidade: inicial?.nacionalidade ?? '',
     posicao: inicial?.posicao ?? ('MEIA' as Posicao),
     funcao: inicial?.funcao ?? ('CENTRAL' as FuncaoArbitro),
@@ -103,13 +102,14 @@ function Campos({ tipo, inicial, onCancelar }: { tipo: Tipo; inicial?: PessoaIni
     const e: Erros = {}
     exigir(f.nome, 'nome', e)
     exigir(f.nacionalidade, 'nacionalidade', e)
-    exigirFaixa(f.idade, 'idade', cfg.idade, e)
+    const erroData = erroNascimento(f.data_nascimento, cfg.idade)
+    if (erroData) e.data_nascimento = erroData
     if (!inicial && !validarCpf(f.cpf)) e.cpf = f.cpf ? 'CPF inválido' : 'Campo obrigatório'
     return e
   }
 
   async function salvar(): Promise<Resultado> {
-    const base = { nome: f.nome.trim(), idade: Number(f.idade), nacionalidade: f.nacionalidade.trim() }
+    const base = { nome: f.nome.trim(), data_nascimento: f.data_nascimento, nacionalidade: f.nacionalidade.trim() }
     const ok = (id: number, nome: string) => ({ id, mensagem: { tipo: 'ok' as const, texto: `${nome} atualizado(a)` } })
 
     if (inicial) {
@@ -164,8 +164,22 @@ function Campos({ tipo, inicial, onCancelar }: { tipo: Tipo; inicial?: PessoaIni
         />
       </Campo>
       <div className="grid grid-cols-2 gap-3">
-        <Campo rotulo="Idade" obrigatorio erro={erros.idade} dica={`Entre ${cfg.idade.min} e ${cfg.idade.max}`}>
-          <Texto valor={f.idade} onChange={mudar('idade')} erro={erros.idade} inputMode="numeric" />
+        <Campo
+          rotulo="Nascimento"
+          obrigatorio
+          erro={erros.data_nascimento}
+          dica={
+            f.data_nascimento && !erroNascimento(f.data_nascimento, cfg.idade)
+              ? `${calcularIdade(f.data_nascimento)} anos`
+              : `Idade entre ${cfg.idade.min} e ${cfg.idade.max} anos`
+          }
+        >
+          <Texto
+            type="date"
+            valor={f.data_nascimento}
+            onChange={mudar('data_nascimento')}
+            erro={erros.data_nascimento}
+          />
         </Campo>
         <Campo rotulo="Nacionalidade" obrigatorio erro={erros.nacionalidade}>
           <Texto

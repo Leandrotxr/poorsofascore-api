@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload, selectinload
 
 from app.core.exceptions import BusinessRuleError, ConflictError, NotFoundError
-from app.models import Campeonato, Equipe, Federacao
+from app.models import Campeonato, Equipe, Federacao, Partida
 from app.schemas import CampeonatoCreate, CampeonatoUpdate
 from app.services.common import Pagina, aplicar_parcial, commit, obter_ou_404, paginar
 
@@ -101,6 +101,14 @@ def remover_equipe(db: Session, campeonato_id: int, equipe_id: int) -> Campeonat
     equipe = obter_ou_404(db, Equipe, equipe_id, "Equipe")
     if equipe not in campeonato.equipes:
         raise BusinessRuleError("Equipe não está inscrita neste campeonato")
+    jogou = db.scalar(
+        select(Partida.id)
+        .where(Partida.campeonato_id == campeonato_id)
+        .where((Partida.mandante_id == equipe_id) | (Partida.visitante_id == equipe_id))
+        .limit(1)
+    )
+    if jogou:
+        raise ConflictError("A equipe tem partidas neste campeonato; apague-as antes de remover a inscrição")
     campeonato.equipes.remove(equipe)
     commit(db)
     return obter(db, campeonato_id)

@@ -1,3 +1,5 @@
+from tests.auxiliares import nascido_ha
+
 """Federações e árbitros: cadastros e as relações Federação 1:N Equipes e Federação 1:N Árbitros."""
 
 
@@ -54,8 +56,13 @@ def test_filtro_federacao_por_abrangencia_e_sigla(client, nova_federacao):
 def test_arbitro_cpf_mascarado_e_validacoes(client, novo_arbitro):
     assert novo_arbitro()["cpf"] == "***.***.***-09"
     base = {"nome": "Fulano", "cpf": "529.982.247-25", "nacionalidade": "BR"}
-    assert client.post("/arbitros", json={**base, "idade": 30, "funcao": "BANDEIRINHA"}).status_code == 422
-    assert client.post("/arbitros", json={**base, "idade": 17, "funcao": "VAR"}).status_code == 422
+    assert (
+        client.post("/arbitros", json={**base, "data_nascimento": nascido_ha(30), "funcao": "BANDEIRINHA"}).status_code
+        == 422
+    )
+    assert (
+        client.post("/arbitros", json={**base, "data_nascimento": nascido_ha(17), "funcao": "VAR"}).status_code == 422
+    )
 
 
 def test_mesmo_cpf_pode_ser_jogador_e_arbitro(novo_jogador, novo_arbitro):

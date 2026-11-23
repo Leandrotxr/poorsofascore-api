@@ -95,6 +95,7 @@ export function JogadoresLista() {
                       <Link to={`/equipes/${j.equipe.id}`} className="inline-flex items-center gap-2 font-medium hover:underline">
                         <span className={`size-2.5 rounded-full ${tomDe(j.equipe.id).medio}`} />
                         {j.equipe.nome}
+                        {j.numero_camisa && <span className="font-mono text-xs text-slate-400">#{j.numero_camisa}</span>}
                       </Link>
                     ) : (
                       <span className="inline-flex items-center gap-1 rounded-full bg-menta px-2.5 py-0.5 text-xs font-semibold text-menta-forte">

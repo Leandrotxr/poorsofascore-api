@@ -6,11 +6,12 @@ import { Codigo, StatCard } from './components/ui'
 import { VISUAL } from './estilo'
 import { useAba } from './hooks'
 
-const ABAS: NomeRecurso[] = ['federacoes', 'campeonatos', 'equipes', 'jogadores', 'tecnicos', 'arbitros']
+const ABAS: NomeRecurso[] = ['federacoes', 'campeonatos', 'partidas', 'equipes', 'jogadores', 'tecnicos', 'arbitros']
 
 const NOVO: Record<NomeRecurso, string> = {
   federacoes: 'Nova federação',
   campeonatos: 'Novo campeonato',
+  partidas: 'Nova partida',
   equipes: 'Nova equipe',
   jogadores: 'Novo jogador',
   tecnicos: 'Novo técnico',
@@ -61,7 +62,7 @@ export function Layout() {
           <ErroConexao mensagem={mensagemDe(resumo.error)} onTentar={() => void resumo.refetch()} />
         ) : (
           <main>
-            <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6">
+            <section className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4 xl:grid-cols-7">
               {ABAS.map((a, i) => (
                 <StatCard
                   key={a}

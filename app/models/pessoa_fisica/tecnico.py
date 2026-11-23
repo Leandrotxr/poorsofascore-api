@@ -6,6 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.pessoa_fisica.base import PessoaFisica
 
 if TYPE_CHECKING:
+    from app.models.contratos.contrato import ContratoTecnico
     from app.models.pessoa_juridica.equipe import Equipe
 
 
@@ -19,3 +20,15 @@ class Tecnico(PessoaFisica):
     # NULL é permitido (técnico sem clube) e o Postgres aceita vários NULLs em coluna UNIQUE.
     equipe_id: Mapped[int | None] = mapped_column(ForeignKey("equipe.id", ondelete="SET NULL"), unique=True)
     equipe: Mapped["Equipe | None"] = relationship(back_populates="tecnico")
+
+    contratos: Mapped[list["ContratoTecnico"]] = relationship(
+        back_populates="tecnico",
+        order_by="ContratoTecnico.inicio.desc(), ContratoTecnico.id.desc()",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+    contrato_atual: Mapped["ContratoTecnico | None"] = relationship(
+        primaryjoin="and_(ContratoTecnico.tecnico_id == Tecnico.id, ContratoTecnico.fim.is_(None))",
+        viewonly=True,
+        uselist=False,
+    )

@@ -737,6 +737,100 @@
         }
       }
     },
+    "/campeonatos/{campeonato_id}/classificacao": {
+      "get": {
+        "tags": [
+          "Campeonatos"
+        ],
+        "summary": "Classificacao",
+        "description": "Tabela com todas as equipes inscritas. Só partidas ENCERRADAS contam.\nDesempate: pontos, vitórias, saldo, gols pró.",
+        "operationId": "classificacao_campeonatos__campeonato_id__classificacao_get",
+        "parameters": [
+          {
+            "name": "campeonato_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Campeonato Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LinhaClassificacao"
+                  },
+                  "title": "Response Classificacao Campeonatos  Campeonato Id  Classificacao Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/campeonatos/{campeonato_id}/artilheiros": {
+      "get": {
+        "tags": [
+          "Campeonatos"
+        ],
+        "summary": "Artilheiros",
+        "description": "Os 20 maiores goleadores (gols contra não contam).",
+        "operationId": "artilheiros_campeonatos__campeonato_id__artilheiros_get",
+        "parameters": [
+          {
+            "name": "campeonato_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Campeonato Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Artilheiro"
+                  },
+                  "title": "Response Artilheiros Campeonatos  Campeonato Id  Artilheiros Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/campeonatos/{campeonato_id}/equipes/{equipe_id}": {
       "put": {
         "tags": [
@@ -820,6 +914,402 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CampeonatoOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/partidas": {
+      "get": {
+        "tags": [
+          "Partidas"
+        ],
+        "summary": "Listar Partidas",
+        "description": "Ordenadas por rodada e data. `equipe_id` traz os jogos em que a equipe é mandante ou visitante.",
+        "operationId": "listar_partidas_partidas_get",
+        "parameters": [
+          {
+            "name": "campeonato_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Campeonato Id"
+            }
+          },
+          {
+            "name": "equipe_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Equipe Id"
+            }
+          },
+          {
+            "name": "rodada",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Rodada"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/StatusPartida"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Quantos registros pular",
+              "default": 0,
+              "title": "Skip"
+            },
+            "description": "Quantos registros pular"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Máximo de registros por página",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Máximo de registros por página"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pagina_PartidaOut_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Partidas"
+        ],
+        "summary": "Criar Partida",
+        "description": "As duas equipes precisam estar inscritas no campeonato. A partida nasce AGENDADA.",
+        "operationId": "criar_partida_partidas_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PartidaCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartidaDetalhe"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/partidas/{partida_id}": {
+      "get": {
+        "tags": [
+          "Partidas"
+        ],
+        "summary": "Obter Partida",
+        "description": "Partida com o placar e a lista de eventos (gols e cartões).",
+        "operationId": "obter_partida_partidas__partida_id__get",
+        "parameters": [
+          {
+            "name": "partida_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Partida Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartidaDetalhe"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Partidas"
+        ],
+        "summary": "Atualizar Partida",
+        "description": "Também muda o status: AGENDADA → EM_ANDAMENTO → ENCERRADA.",
+        "operationId": "atualizar_partida_partidas__partida_id__patch",
+        "parameters": [
+          {
+            "name": "partida_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Partida Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PartidaUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartidaDetalhe"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Partidas"
+        ],
+        "summary": "Remover Partida",
+        "operationId": "remover_partida_partidas__partida_id__delete",
+        "parameters": [
+          {
+            "name": "partida_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Partida Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/partidas/{partida_id}/eventos": {
+      "post": {
+        "tags": [
+          "Partidas"
+        ],
+        "summary": "Adicionar Evento",
+        "description": "A partida precisa ter começado. A equipe do evento é a equipe atual do jogador.",
+        "operationId": "adicionar_evento_partidas__partida_id__eventos_post",
+        "parameters": [
+          {
+            "name": "partida_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Partida Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventoCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartidaDetalhe"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/partidas/{partida_id}/eventos/{evento_id}": {
+      "delete": {
+        "tags": [
+          "Partidas"
+        ],
+        "summary": "Remover Evento",
+        "operationId": "remover_evento_partidas__partida_id__eventos__evento_id__delete",
+        "parameters": [
+          {
+            "name": "partida_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Partida Id"
+            }
+          },
+          {
+            "name": "evento_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Evento Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartidaDetalhe"
                 }
               }
             }
@@ -1121,6 +1611,7 @@
           "Equipes"
         ],
         "summary": "Contratar Jogador",
+        "description": "Abre um contrato (corpo opcional: `inicio` e `numero_camisa`). O jogador precisa estar livre.",
         "operationId": "contratar_jogador_equipes__equipe_id__jogadores__jogador_id__put",
         "parameters": [
           {
@@ -1142,6 +1633,23 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ContratoJogadorCreate"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Dados"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -1170,6 +1678,7 @@
           "Equipes"
         ],
         "summary": "Dispensar Jogador",
+        "description": "Encerra o contrato atual (fica no histórico do jogador).",
         "operationId": "dispensar_jogador_equipes__equipe_id__jogadores__jogador_id__delete",
         "parameters": [
           {
@@ -1221,7 +1730,7 @@
           "Equipes"
         ],
         "summary": "Definir Tecnico",
-        "description": "Define o técnico. Se a equipe já tiver um, ele é substituído.",
+        "description": "Define o técnico (corpo opcional: `inicio`). Se a equipe já tiver um, o contrato dele é encerrado.",
         "operationId": "definir_tecnico_equipes__equipe_id__tecnico__tecnico_id__put",
         "parameters": [
           {
@@ -1243,6 +1752,23 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ContratoTecnicoCreate"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Dados"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -1591,6 +2117,53 @@
         }
       }
     },
+    "/jogadores/{jogador_id}/contratos": {
+      "get": {
+        "tags": [
+          "Jogadores"
+        ],
+        "summary": "Contratos Do Jogador",
+        "description": "Histórico de equipes, do contrato mais recente para o mais antigo.",
+        "operationId": "contratos_do_jogador_jogadores__jogador_id__contratos_get",
+        "parameters": [
+          {
+            "name": "jogador_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Jogador Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ContratoJogadorOut"
+                  },
+                  "title": "Response Contratos Do Jogador Jogadores  Jogador Id  Contratos Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/tecnicos": {
       "get": {
         "tags": [
@@ -1827,6 +2400,53 @@
         "responses": {
           "204": {
             "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tecnicos/{tecnico_id}/contratos": {
+      "get": {
+        "tags": [
+          "Técnicos"
+        ],
+        "summary": "Contratos Do Tecnico",
+        "description": "Histórico de equipes comandadas, do mais recente para o mais antigo.",
+        "operationId": "contratos_do_tecnico_tecnicos__tecnico_id__contratos_get",
+        "parameters": [
+          {
+            "name": "tecnico_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Tecnico Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ContratoTecnicoOut"
+                  },
+                  "title": "Response Contratos Do Tecnico Tecnicos  Tecnico Id  Contratos Get"
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -2197,14 +2817,14 @@
             "minLength": 2,
             "title": "Nacionalidade"
           },
-          "idade": {
-            "type": "integer",
-            "maximum": 65.0,
-            "minimum": 18.0,
-            "title": "Idade"
-          },
           "funcao": {
             "$ref": "#/components/schemas/FuncaoArbitro"
+          },
+          "data_nascimento": {
+            "type": "string",
+            "format": "date",
+            "title": "Data Nascimento",
+            "description": "Idade entre 18 e 65 anos"
           }
         },
         "type": "object",
@@ -2212,8 +2832,8 @@
           "cpf",
           "nome",
           "nacionalidade",
-          "idade",
-          "funcao"
+          "funcao",
+          "data_nascimento"
         ],
         "title": "ArbitroCreate"
       },
@@ -2227,6 +2847,16 @@
             "type": "string",
             "title": "Cpf"
           },
+          "data_nascimento": {
+            "type": "string",
+            "format": "date",
+            "title": "Data Nascimento"
+          },
+          "idade": {
+            "type": "integer",
+            "title": "Idade",
+            "description": "Calculada a partir da data de nascimento"
+          },
           "nome": {
             "type": "string",
             "maxLength": 120,
@@ -2238,12 +2868,6 @@
             "maxLength": 60,
             "minLength": 2,
             "title": "Nacionalidade"
-          },
-          "idade": {
-            "type": "integer",
-            "maximum": 65.0,
-            "minimum": 18.0,
-            "title": "Idade"
           },
           "funcao": {
             "$ref": "#/components/schemas/FuncaoArbitro"
@@ -2263,9 +2887,10 @@
         "required": [
           "id",
           "cpf",
+          "data_nascimento",
+          "idade",
           "nome",
           "nacionalidade",
-          "idade",
           "funcao",
           "federacao"
         ],
@@ -2321,18 +2946,18 @@
             ],
             "title": "Nacionalidade"
           },
-          "idade": {
+          "data_nascimento": {
             "anyOf": [
               {
-                "type": "integer",
-                "maximum": 65.0,
-                "minimum": 18.0
+                "type": "string",
+                "format": "date",
+                "description": "Idade entre 18 e 65 anos"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Idade"
+            "title": "Data Nascimento"
           },
           "funcao": {
             "anyOf": [
@@ -2347,6 +2972,27 @@
         },
         "type": "object",
         "title": "ArbitroUpdate"
+      },
+      "Artilheiro": {
+        "properties": {
+          "jogador": {
+            "$ref": "#/components/schemas/PessoaResumo"
+          },
+          "equipe": {
+            "$ref": "#/components/schemas/EquipeResumo"
+          },
+          "gols": {
+            "type": "integer",
+            "title": "Gols"
+          }
+        },
+        "type": "object",
+        "required": [
+          "jogador",
+          "equipe",
+          "gols"
+        ],
+        "title": "Artilheiro"
       },
       "CampeonatoCreate": {
         "properties": {
@@ -2578,6 +3224,143 @@
         "title": "CampeonatoUpdate",
         "description": "PATCH: tudo opcional. As datas são conferidas de novo no service, com os valores já salvos."
       },
+      "ContratoJogadorCreate": {
+        "properties": {
+          "inicio": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inicio"
+          },
+          "numero_camisa": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 99.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numero Camisa"
+          }
+        },
+        "type": "object",
+        "title": "ContratoJogadorCreate",
+        "description": "Corpo opcional ao contratar. Sem `inicio`, vale a data de hoje."
+      },
+      "ContratoJogadorOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "equipe": {
+            "$ref": "#/components/schemas/EquipeResumo"
+          },
+          "inicio": {
+            "type": "string",
+            "format": "date",
+            "title": "Inicio"
+          },
+          "fim": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fim",
+            "description": "Vazio = contrato em andamento"
+          },
+          "numero_camisa": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numero Camisa"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "equipe",
+          "inicio",
+          "fim",
+          "numero_camisa"
+        ],
+        "title": "ContratoJogadorOut"
+      },
+      "ContratoTecnicoCreate": {
+        "properties": {
+          "inicio": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inicio"
+          }
+        },
+        "type": "object",
+        "title": "ContratoTecnicoCreate",
+        "description": "Corpo opcional ao definir o técnico. Sem `inicio`, vale a data de hoje."
+      },
+      "ContratoTecnicoOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "equipe": {
+            "$ref": "#/components/schemas/EquipeResumo"
+          },
+          "inicio": {
+            "type": "string",
+            "format": "date",
+            "title": "Inicio"
+          },
+          "fim": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fim",
+            "description": "Vazio = contrato em andamento"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "equipe",
+          "inicio",
+          "fim"
+        ],
+        "title": "ContratoTecnicoOut"
+      },
       "EquipeCreate": {
         "properties": {
           "nome": {
@@ -2805,6 +3588,69 @@
         },
         "type": "object",
         "title": "EquipeUpdate"
+      },
+      "EventoCreate": {
+        "properties": {
+          "tipo": {
+            "$ref": "#/components/schemas/TipoEvento"
+          },
+          "minuto": {
+            "type": "integer",
+            "maximum": 130.0,
+            "minimum": 0.0,
+            "title": "Minuto"
+          },
+          "jogador_id": {
+            "type": "integer",
+            "title": "Jogador Id",
+            "description": "A equipe do evento é a equipe atual do jogador"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tipo",
+          "minuto",
+          "jogador_id"
+        ],
+        "title": "EventoCreate"
+      },
+      "EventoOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "tipo": {
+            "$ref": "#/components/schemas/TipoEvento"
+          },
+          "minuto": {
+            "type": "integer",
+            "title": "Minuto"
+          },
+          "equipe": {
+            "$ref": "#/components/schemas/EquipeResumo"
+          },
+          "jogador": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PessoaResumo"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Vazio se o jogador foi excluído depois"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "tipo",
+          "minuto",
+          "equipe",
+          "jogador"
+        ],
+        "title": "EventoOut"
       },
       "FederacaoCreate": {
         "properties": {
@@ -3148,14 +3994,14 @@
             "minLength": 2,
             "title": "Nacionalidade"
           },
-          "idade": {
-            "type": "integer",
-            "maximum": 60.0,
-            "minimum": 14.0,
-            "title": "Idade"
-          },
           "posicao": {
             "$ref": "#/components/schemas/Posicao"
+          },
+          "data_nascimento": {
+            "type": "string",
+            "format": "date",
+            "title": "Data Nascimento",
+            "description": "Idade entre 14 e 60 anos"
           }
         },
         "type": "object",
@@ -3163,8 +4009,8 @@
           "cpf",
           "nome",
           "nacionalidade",
-          "idade",
-          "posicao"
+          "posicao",
+          "data_nascimento"
         ],
         "title": "JogadorCreate"
       },
@@ -3178,6 +4024,16 @@
             "type": "string",
             "title": "Cpf"
           },
+          "data_nascimento": {
+            "type": "string",
+            "format": "date",
+            "title": "Data Nascimento"
+          },
+          "idade": {
+            "type": "integer",
+            "title": "Idade",
+            "description": "Calculada a partir da data de nascimento"
+          },
           "nome": {
             "type": "string",
             "maxLength": 120,
@@ -3189,12 +4045,6 @@
             "maxLength": 60,
             "minLength": 2,
             "title": "Nacionalidade"
-          },
-          "idade": {
-            "type": "integer",
-            "maximum": 60.0,
-            "minimum": 14.0,
-            "title": "Idade"
           },
           "posicao": {
             "$ref": "#/components/schemas/Posicao"
@@ -3208,17 +4058,31 @@
                 "type": "null"
               }
             ]
+          },
+          "numero_camisa": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numero Camisa",
+            "description": "Número no contrato atual"
           }
         },
         "type": "object",
         "required": [
           "id",
           "cpf",
+          "data_nascimento",
+          "idade",
           "nome",
           "nacionalidade",
-          "idade",
           "posicao",
-          "equipe"
+          "equipe",
+          "numero_camisa"
         ],
         "title": "JogadorOut"
       },
@@ -3238,6 +4102,17 @@
           "idade": {
             "type": "integer",
             "title": "Idade"
+          },
+          "numero_camisa": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numero Camisa"
           }
         },
         "type": "object",
@@ -3245,7 +4120,8 @@
           "id",
           "nome",
           "posicao",
-          "idade"
+          "idade",
+          "numero_camisa"
         ],
         "title": "JogadorResumo"
       },
@@ -3277,18 +4153,18 @@
             ],
             "title": "Nacionalidade"
           },
-          "idade": {
+          "data_nascimento": {
             "anyOf": [
               {
-                "type": "integer",
-                "maximum": 60.0,
-                "minimum": 14.0
+                "type": "string",
+                "format": "date",
+                "description": "Idade entre 14 e 60 anos"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Idade"
+            "title": "Data Nascimento"
           },
           "posicao": {
             "anyOf": [
@@ -3303,6 +4179,69 @@
         },
         "type": "object",
         "title": "JogadorUpdate"
+      },
+      "LinhaClassificacao": {
+        "properties": {
+          "posicao": {
+            "type": "integer",
+            "title": "Posicao"
+          },
+          "equipe": {
+            "$ref": "#/components/schemas/EquipeResumo"
+          },
+          "pontos": {
+            "type": "integer",
+            "title": "Pontos"
+          },
+          "jogos": {
+            "type": "integer",
+            "title": "Jogos"
+          },
+          "vitorias": {
+            "type": "integer",
+            "title": "Vitorias"
+          },
+          "empates": {
+            "type": "integer",
+            "title": "Empates"
+          },
+          "derrotas": {
+            "type": "integer",
+            "title": "Derrotas"
+          },
+          "gols_pro": {
+            "type": "integer",
+            "title": "Gols Pro"
+          },
+          "gols_contra": {
+            "type": "integer",
+            "title": "Gols Contra"
+          },
+          "saldo": {
+            "type": "integer",
+            "title": "Saldo"
+          },
+          "aproveitamento": {
+            "type": "number",
+            "title": "Aproveitamento",
+            "description": "Percentual dos pontos possíveis (0 a 100)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "posicao",
+          "equipe",
+          "pontos",
+          "jogos",
+          "vitorias",
+          "empates",
+          "derrotas",
+          "gols_pro",
+          "gols_contra",
+          "saldo",
+          "aproveitamento"
+        ],
+        "title": "LinhaClassificacao"
       },
       "Pagina_ArbitroOut_": {
         "properties": {
@@ -3464,6 +4403,38 @@
         ],
         "title": "Pagina[JogadorOut]"
       },
+      "Pagina_PartidaOut_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PartidaOut"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "Quantos registros existem com os filtros aplicados (todas as páginas)"
+          },
+          "skip": {
+            "type": "integer",
+            "title": "Skip"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "skip",
+          "limit"
+        ],
+        "title": "Pagina[PartidaOut]"
+      },
       "Pagina_TecnicoOut_": {
         "properties": {
           "items": {
@@ -3496,6 +4467,347 @@
         ],
         "title": "Pagina[TecnicoOut]"
       },
+      "PartidaCreate": {
+        "properties": {
+          "campeonato_id": {
+            "type": "integer",
+            "title": "Campeonato Id"
+          },
+          "rodada": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Rodada",
+            "description": "Rodada (pontos corridos) ou fase (mata-mata)"
+          },
+          "mandante_id": {
+            "type": "integer",
+            "title": "Mandante Id"
+          },
+          "visitante_id": {
+            "type": "integer",
+            "title": "Visitante Id"
+          },
+          "data_hora": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Hora"
+          },
+          "local": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Local"
+          },
+          "arbitro_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Arbitro Id",
+            "description": "Árbitro central"
+          }
+        },
+        "type": "object",
+        "required": [
+          "campeonato_id",
+          "rodada",
+          "mandante_id",
+          "visitante_id"
+        ],
+        "title": "PartidaCreate"
+      },
+      "PartidaDetalhe": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "campeonato": {
+            "$ref": "#/components/schemas/CampeonatoResumo"
+          },
+          "rodada": {
+            "type": "integer",
+            "title": "Rodada"
+          },
+          "data_hora": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Hora"
+          },
+          "local": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Local"
+          },
+          "status": {
+            "$ref": "#/components/schemas/StatusPartida"
+          },
+          "mandante": {
+            "$ref": "#/components/schemas/EquipeResumo"
+          },
+          "visitante": {
+            "$ref": "#/components/schemas/EquipeResumo"
+          },
+          "arbitro": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArbitroResumo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "gols_mandante": {
+            "type": "integer",
+            "title": "Gols Mandante",
+            "description": "Calculado a partir dos eventos de gol"
+          },
+          "gols_visitante": {
+            "type": "integer",
+            "title": "Gols Visitante"
+          },
+          "eventos": {
+            "items": {
+              "$ref": "#/components/schemas/EventoOut"
+            },
+            "type": "array",
+            "title": "Eventos"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "campeonato",
+          "rodada",
+          "data_hora",
+          "local",
+          "status",
+          "mandante",
+          "visitante",
+          "arbitro",
+          "gols_mandante",
+          "gols_visitante",
+          "eventos"
+        ],
+        "title": "PartidaDetalhe"
+      },
+      "PartidaOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "campeonato": {
+            "$ref": "#/components/schemas/CampeonatoResumo"
+          },
+          "rodada": {
+            "type": "integer",
+            "title": "Rodada"
+          },
+          "data_hora": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Hora"
+          },
+          "local": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Local"
+          },
+          "status": {
+            "$ref": "#/components/schemas/StatusPartida"
+          },
+          "mandante": {
+            "$ref": "#/components/schemas/EquipeResumo"
+          },
+          "visitante": {
+            "$ref": "#/components/schemas/EquipeResumo"
+          },
+          "arbitro": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArbitroResumo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "gols_mandante": {
+            "type": "integer",
+            "title": "Gols Mandante",
+            "description": "Calculado a partir dos eventos de gol"
+          },
+          "gols_visitante": {
+            "type": "integer",
+            "title": "Gols Visitante"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "campeonato",
+          "rodada",
+          "data_hora",
+          "local",
+          "status",
+          "mandante",
+          "visitante",
+          "arbitro",
+          "gols_mandante",
+          "gols_visitante"
+        ],
+        "title": "PartidaOut"
+      },
+      "PartidaUpdate": {
+        "properties": {
+          "rodada": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rodada"
+          },
+          "mandante_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mandante Id"
+          },
+          "visitante_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Visitante Id"
+          },
+          "data_hora": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Hora"
+          },
+          "local": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Local"
+          },
+          "arbitro_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Arbitro Id"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StatusPartida"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "PartidaUpdate",
+        "description": "PATCH: tudo opcional. As regras que dependem do banco (inscrição, eventos) ficam no service."
+      },
+      "PessoaResumo": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "nome": {
+            "type": "string",
+            "title": "Nome"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nome"
+        ],
+        "title": "PessoaResumo",
+        "description": "Só id e nome (ex.: o autor de um gol)."
+      },
       "Posicao": {
         "type": "string",
         "enum": [
@@ -3518,6 +4830,10 @@
             "type": "integer",
             "title": "Campeonatos"
           },
+          "partidas": {
+            "type": "integer",
+            "title": "Partidas"
+          },
           "equipes": {
             "type": "integer",
             "title": "Equipes"
@@ -3539,6 +4855,7 @@
         "required": [
           "federacoes",
           "campeonatos",
+          "partidas",
           "equipes",
           "jogadores",
           "tecnicos",
@@ -3546,6 +4863,15 @@
         ],
         "title": "Resumo",
         "description": "Quantos registros existem de cada entidade (cards do painel)."
+      },
+      "StatusPartida": {
+        "type": "string",
+        "enum": [
+          "AGENDADA",
+          "EM_ANDAMENTO",
+          "ENCERRADA"
+        ],
+        "title": "StatusPartida"
       },
       "TecnicoCreate": {
         "properties": {
@@ -3566,11 +4892,11 @@
             "minLength": 2,
             "title": "Nacionalidade"
           },
-          "idade": {
-            "type": "integer",
-            "maximum": 100.0,
-            "minimum": 18.0,
-            "title": "Idade"
+          "data_nascimento": {
+            "type": "string",
+            "format": "date",
+            "title": "Data Nascimento",
+            "description": "Idade entre 18 e 100 anos"
           }
         },
         "type": "object",
@@ -3578,7 +4904,7 @@
           "cpf",
           "nome",
           "nacionalidade",
-          "idade"
+          "data_nascimento"
         ],
         "title": "TecnicoCreate"
       },
@@ -3592,6 +4918,16 @@
             "type": "string",
             "title": "Cpf"
           },
+          "data_nascimento": {
+            "type": "string",
+            "format": "date",
+            "title": "Data Nascimento"
+          },
+          "idade": {
+            "type": "integer",
+            "title": "Idade",
+            "description": "Calculada a partir da data de nascimento"
+          },
           "nome": {
             "type": "string",
             "maxLength": 120,
@@ -3603,12 +4939,6 @@
             "maxLength": 60,
             "minLength": 2,
             "title": "Nacionalidade"
-          },
-          "idade": {
-            "type": "integer",
-            "maximum": 100.0,
-            "minimum": 18.0,
-            "title": "Idade"
           },
           "equipe": {
             "anyOf": [
@@ -3625,9 +4955,10 @@
         "required": [
           "id",
           "cpf",
+          "data_nascimento",
+          "idade",
           "nome",
           "nacionalidade",
-          "idade",
           "equipe"
         ],
         "title": "TecnicoOut"
@@ -3688,22 +5019,32 @@
             ],
             "title": "Nacionalidade"
           },
-          "idade": {
+          "data_nascimento": {
             "anyOf": [
               {
-                "type": "integer",
-                "maximum": 100.0,
-                "minimum": 18.0
+                "type": "string",
+                "format": "date",
+                "description": "Idade entre 18 e 100 anos"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Idade"
+            "title": "Data Nascimento"
           }
         },
         "type": "object",
         "title": "TecnicoUpdate"
+      },
+      "TipoEvento": {
+        "type": "string",
+        "enum": [
+          "GOL",
+          "GOL_CONTRA",
+          "CARTAO_AMARELO",
+          "CARTAO_VERMELHO"
+        ],
+        "title": "TipoEvento"
       },
       "ValidationError": {
         "properties": {

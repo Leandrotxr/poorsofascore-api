@@ -23,6 +23,7 @@ class FederacaoResumo(_Resumo):
 class JogadorResumo(_Resumo):
     posicao: Posicao
     idade: int
+    numero_camisa: int | None = None
 
 
 class TecnicoResumo(_Resumo):
@@ -36,3 +37,7 @@ class CampeonatoResumo(_Resumo):
 
 class ArbitroResumo(_Resumo):
     funcao: FuncaoArbitro
+
+
+class PessoaResumo(_Resumo):
+    """Só id e nome (ex.: o autor de um gol)."""

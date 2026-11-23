@@ -1,3 +1,6 @@
+from tests.auxiliares import nascido_ha
+
+
 def test_health(client):
     assert client.get("/health").json() == {"status": "ok"}
 
@@ -26,15 +29,24 @@ def test_cpf_sai_mascarado(novo_jogador):
 
 
 def test_rejeita_cpf_invalido_e_idade_fora_da_faixa(client):
-    base = {"nome": "Fulano", "idade": 25, "nacionalidade": "BR", "posicao": "MEIA"}
+    base = {"nome": "Fulano", "data_nascimento": nascido_ha(25), "nacionalidade": "BR", "posicao": "MEIA"}
     assert client.post("/jogadores", json={**base, "cpf": "123.456.789-00"}).status_code == 422
-    assert client.post("/jogadores", json={**base, "cpf": "123.456.789-09", "idade": -1}).status_code == 422
+    assert (
+        client.post("/jogadores", json={**base, "cpf": "123.456.789-09", "data_nascimento": nascido_ha(5)}).status_code
+        == 422
+    )
 
 
 def test_rejeita_posicao_invalida(client):
     r = client.post(
         "/jogadores",
-        json={"nome": "Fulano", "cpf": "123.456.789-09", "idade": 25, "nacionalidade": "BR", "posicao": "PIVO"},
+        json={
+            "nome": "Fulano",
+            "cpf": "123.456.789-09",
+            "data_nascimento": nascido_ha(25),
+            "nacionalidade": "BR",
+            "posicao": "PIVO",
+        },
     )
     assert r.status_code == 422
 
@@ -43,14 +55,20 @@ def test_rejeita_cpf_duplicado(client, novo_jogador):
     novo_jogador()
     r = client.post(
         "/jogadores",
-        json={"nome": "Outro", "cpf": "12345678909", "idade": 22, "nacionalidade": "BR", "posicao": "ZAGUEIRO"},
+        json={
+            "nome": "Outro",
+            "cpf": "12345678909",
+            "data_nascimento": nascido_ha(22),
+            "nacionalidade": "BR",
+            "posicao": "ZAGUEIRO",
+        },
     )
     assert r.status_code == 409
 
 
 def test_patch_altera_so_o_enviado(client, novo_jogador):
     j = novo_jogador()
-    r = client.patch(f"/jogadores/{j['id']}", json={"idade": 32})
+    r = client.patch(f"/jogadores/{j['id']}", json={"data_nascimento": nascido_ha(32)})
     assert r.status_code == 200
     assert r.json()["idade"] == 32 and r.json()["nome"] == "Arrascaeta"
 

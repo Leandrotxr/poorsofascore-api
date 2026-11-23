@@ -2,7 +2,8 @@ from fastapi import APIRouter, status
 
 from app.api.deps import DbSession, Limit, Skip
 from app.models import Posicao
-from app.schemas import JogadorCreate, JogadorOut, JogadorUpdate, Pagina
+from app.schemas import ContratoJogadorOut, JogadorCreate, JogadorOut, JogadorUpdate, Pagina
+from app.services import contratos
 from app.services import jogadores as service
 
 router = APIRouter(prefix="/jogadores", tags=["Jogadores"])
@@ -26,6 +27,12 @@ def listar_jogadores(
 @router.get("/{jogador_id}", response_model=JogadorOut)
 def obter_jogador(jogador_id: int, db: DbSession):
     return service.obter(db, jogador_id)
+
+
+@router.get("/{jogador_id}/contratos", response_model=list[ContratoJogadorOut])
+def contratos_do_jogador(jogador_id: int, db: DbSession):
+    """Histórico de equipes, do contrato mais recente para o mais antigo."""
+    return contratos.contratos_do_jogador(db, jogador_id)
 
 
 @router.post("", response_model=JogadorOut, status_code=status.HTTP_201_CREATED)

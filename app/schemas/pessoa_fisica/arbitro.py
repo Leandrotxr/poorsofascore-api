@@ -1,25 +1,30 @@
+from datetime import date
 from typing import Annotated
 
-from pydantic import Field
+from pydantic import AfterValidator, Field
 
+from app.core.datas import faixa_etaria
 from app.models import Arbitro, FuncaoArbitro
 from app.schemas.pessoa_fisica.base import PessoaFisicaBase, PessoaFisicaCreate, PessoaFisicaOut, PessoaFisicaUpdate
 from app.schemas.resumos import FederacaoResumo
 
-Idade = Annotated[int, Field(ge=Arbitro.IDADE_MINIMA, le=Arbitro.IDADE_MAXIMA)]
+Nascimento = Annotated[
+    date,
+    AfterValidator(faixa_etaria(Arbitro.IDADE_MINIMA, Arbitro.IDADE_MAXIMA)),
+    Field(description=f"Idade entre {Arbitro.IDADE_MINIMA} e {Arbitro.IDADE_MAXIMA} anos"),
+]
 
 
 class ArbitroBase(PessoaFisicaBase):
-    idade: Idade
     funcao: FuncaoArbitro
 
 
 class ArbitroCreate(ArbitroBase, PessoaFisicaCreate):
-    pass
+    data_nascimento: Nascimento
 
 
 class ArbitroUpdate(PessoaFisicaUpdate):
-    idade: Idade | None = None
+    data_nascimento: Nascimento | None = None
     funcao: FuncaoArbitro | None = None
 
 

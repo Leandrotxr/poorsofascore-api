@@ -17,6 +17,7 @@ import app.models
 from app.db.base import Base
 from app.db.session import get_db
 from app.main import app
+from tests.auxiliares import nascido_ha
 
 TEST_URL = os.getenv("TEST_DATABASE_URL", "sqlite://")
 
@@ -53,7 +54,14 @@ def client():
 # ---------- dados de exemplo (CPFs/CNPJs válidos) ----------
 
 CPFS = ["123.456.789-09", "987.654.321-00", "111.444.777-35", "529.982.247-25", "390.533.447-05"]
-CNPJS = ["11.222.333/0001-81", "04.545.021/0001-43", "60.674.644/0001-97"]
+CNPJS = [
+    "11.222.333/0001-81",
+    "04.545.021/0001-43",
+    "60.674.644/0001-97",
+    "33.000.167/0001-01",
+    "47.960.950/0001-21",
+    "19.131.243/0001-97",
+]
 
 
 @pytest.fixture()
@@ -80,7 +88,7 @@ def novo_jogador(client):
             json={
                 "nome": nome,
                 "cpf": CPFS[next(contador)],
-                "idade": idade,
+                "data_nascimento": nascido_ha(idade),
                 "nacionalidade": "Uruguaio",
                 "posicao": posicao,
             },
@@ -98,7 +106,12 @@ def novo_tecnico(client):
     def _criar(nome="Filipe Luís", idade=41):
         r = client.post(
             "/tecnicos",
-            json={"nome": nome, "cpf": CPFS[next(contador)], "idade": idade, "nacionalidade": "Brasileiro"},
+            json={
+                "nome": nome,
+                "cpf": CPFS[next(contador)],
+                "data_nascimento": nascido_ha(idade),
+                "nacionalidade": "Brasileiro",
+            },
         )
         assert r.status_code == 201, r.text
         return r.json()
@@ -136,7 +149,7 @@ def novo_arbitro(client):
             json={
                 "nome": nome,
                 "cpf": CPFS[next(contador)],
-                "idade": idade,
+                "data_nascimento": nascido_ha(idade),
                 "nacionalidade": "Brasileiro",
                 "funcao": funcao,
             },

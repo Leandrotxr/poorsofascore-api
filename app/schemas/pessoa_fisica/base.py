@@ -1,5 +1,7 @@
 """Peças comuns a toda pessoa física. As filhas combinam estas classes por herança."""
 
+from datetime import date
+
 from pydantic import BaseModel, Field, field_serializer, field_validator
 
 from app.core.validators import mascarar_cpf, validar_cpf
@@ -7,7 +9,7 @@ from app.schemas.saida import CONFIG_SAIDA
 
 
 class PessoaFisicaBase(BaseModel):
-    """Campos que entram e saem da API. A `idade` fica nas filhas: cada papel tem sua faixa."""
+    """Campos que entram e saem da API sem regra que dependa do papel."""
 
     nome: str = Field(min_length=2, max_length=120)
     nacionalidade: str = Field(min_length=2, max_length=60)
@@ -32,11 +34,17 @@ class PessoaFisicaUpdate(BaseModel):
 
 
 class PessoaFisicaOut(BaseModel):
-    """Saída: nunca devolve o CPF completo (minimização de dados, LGPD)."""
+    """
+    Saída: nunca devolve o CPF completo (minimização de dados, LGPD).
+    A data de nascimento sai sem a validação de faixa etária: ela só vale no cadastro/edição
+    (quem foi cadastrado com 59 anos continua aparecendo depois de fazer 61).
+    """
 
     model_config = CONFIG_SAIDA
     id: int
     cpf: str
+    data_nascimento: date
+    idade: int = Field(description="Calculada a partir da data de nascimento")
 
     @field_serializer("cpf")
     def _mascara(self, cpf: str) -> str:

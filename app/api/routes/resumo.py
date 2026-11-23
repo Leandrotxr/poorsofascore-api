@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from sqlalchemy import func, select
 
 from app.api.deps import DbSession
-from app.models import Arbitro, Campeonato, Equipe, Federacao, Jogador, Tecnico
+from app.models import Arbitro, Campeonato, Equipe, Federacao, Jogador, Partida, Tecnico
 
 router = APIRouter(prefix="/resumo", tags=["Resumo"])
 
@@ -13,6 +13,7 @@ class Resumo(BaseModel):
 
     federacoes: int
     campeonatos: int
+    partidas: int
     equipes: int
     jogadores: int
     tecnicos: int
@@ -25,6 +26,7 @@ def obter_resumo(db: DbSession):
     modelos = {
         "federacoes": Federacao,
         "campeonatos": Campeonato,
+        "partidas": Partida,
         "equipes": Equipe,
         "jogadores": Jogador,
         "tecnicos": Tecnico,
